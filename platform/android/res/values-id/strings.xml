@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">All files access</string>
+    <string name="grant_all_files_permission"><![CDATA[QField needs all files access permission to be able to open local projects and datasets as well as supporting custom projection grids, fonts, and base maps. While not required, <i>allowing access is highly recommended</i>.<br/><br/>On the next screen, please select <b>QField</b> and select the <b>Allow access to all files</b> option.]]></string>
+    <string name="grant">Allow</string>
+    <string name="deny_always">Deny Permanently</string>
+    <string name="deny_once">Deny Once</string>
+    <string name="import_error">Import Error</string>
+    <string name="import_dataset_error">The selected dataset(s) could not be imported properly.</string>
+    <string name="import_project_archive_error">The selected project archive was not imported properly.</string>
+    <string name="import_project_folder_error">The selected project folder was not imported properly.</string>
+    <string name="import_overwrite_title">Import Warning</string>
+    <string name="import_overwrite_folder">This project folder already exists. This operation will overwrite its data, proceed with import?</string>
+    <string name="import_overwrite_dataset_single">This dataset already exists. This operation will overwrite it, proceed with import?</string>
+    <string name="import_overwrite_dataset_multiple">One or more datasets already exists. This operation will overwrite these, proceed with import?</string>
+    <string name="import_overwrite_confirm">Import and Overwrite</string>
+    <string name="import_overwrite_cancel">Cancel</string>
+    <string name="export_error">Export Error</string>
+    <string name="export_to_folder_error">The selected project folder was not exported properly.</string>
+    <string name="delete_confirm_title">Removal Confirmation</string>
+    <string name="delete_confirm_dataset">The dataset will be permamently deleted, proceed with removal?</string>
+    <string name="delete_confirm_folder">The project folder will be permamently deleted, proceed with removal?</string>
+    <string name="delete_confirm">Remove</string>
+    <string name="delete_cancel">Cancel</string>
+    <string name="storage_information_title">Storage Information</string>
+    <string name="storage_information_message">Whether you are a pre-existing QField 1.x user wondering why your projects and datasets have gone missing or new to QField, we suggest you take a minute to read the storage handling documentation. A shortcut to this documentation will remain accessible in the title bar\'s actions menu.</string>
+    <string name="storage_information_view">Show me the documentation</string>
+    <string name="storage_information_dismiss">I\'ll read later</string>
+    <string name="import_project_wait">Please wait while QField is importing the project</string>
+    <string name="import_dataset_wait">Please wait while QField is importing the dataset(s)</string>
+    <string name="positioning_title">Positioning</string>
+    </resources>

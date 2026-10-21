@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">Acceso a tódolos ficheiros</string>
+    <string name="grant_all_files_permission"><![CDATA[QField precisa permisos de acceso a tódolos ficheiros para poder abrir os proxectos e conxuntos de datos locais así como para admitir as grades de proxección, fontes, e mapas base personalizados. Aínda que non é obrigatorio, <i>permitir o acceso é altamente recomendado</i>.<br/><br/>Na seguinte pantalla, por favor, selecciona <b>QField</b> e selecciona a opción <b>Permitir acceso a tódolos ficheiros</b>.]]></string>
+    <string name="grant">Permitir</string>
+    <string name="deny_always">Denegar Permanentemente</string>
+    <string name="deny_once">Denegar Unha Vez</string>
+    <string name="import_error">Erro de Importación</string>
+    <string name="import_dataset_error">Non se puideron importar axeitadamente os conxunto(s) de datos seleccionados.</string>
+    <string name="import_project_archive_error">O ficheiro do proxecto seleccionado non se importou axeitadamente.</string>
+    <string name="import_project_folder_error">Non se puido importar axeitadamente o directorio do proxecto seleccionado.</string>
+    <string name="import_overwrite_title">Advertencia Importante</string>
+    <string name="import_overwrite_folder">Xa existe este directorio do proxecto. Esta operación sobrescribirá os seus datos, continuar coa importación?</string>
+    <string name="import_overwrite_dataset_single">Xa existe este conxunto de datos. Esta operación sobrescribirao, continuar coa importación?</string>
+    <string name="import_overwrite_dataset_multiple">Xa existe un ou máis conxuntos de datos. Esta operación sobrescribiraos, continuar coa importación?</string>
+    <string name="import_overwrite_confirm">Importar e Sobrescribir</string>
+    <string name="import_overwrite_cancel">Cancelar</string>
+    <string name="export_error">Erro de Exportación</string>
+    <string name="export_to_folder_error">Non se puido exportar axeitadamente o directorio do proxecto seleccionado.</string>
+    <string name="delete_confirm_title">Confirmación da Eliminación</string>
+    <string name="delete_confirm_dataset">O conxunto de datos eliminarase permanentemente, continuar coa eliminación?</string>
+    <string name="delete_confirm_folder">O directorio do proxecto eliminarase permanentemente, continuar coa eliminación?</string>
+    <string name="delete_confirm">Eliminar</string>
+    <string name="delete_cancel">Cancelar</string>
+    <string name="storage_information_title">Información do Almacenamento</string>
+    <string name="storage_information_message">Se es un dos usuarios preexistentes de QField 1.x preguntándote por que desapareceron os proxectos e conxuntos de datos de QField ou es novo aquí, suxerímoste tomes un minuto en ler a documentación de manexo do almacenamento. Un atallo a esta documentación permanecerá accesible no menú do título da barra de accións.</string>
+    <string name="storage_information_view">Amósame a documentación</string>
+    <string name="storage_information_dismiss">Lereina máis tarde</string>
+    <string name="import_project_wait">Por favor, agarda mentras QFIELD importa o proxecto.</string>
+    <string name="import_dataset_wait">Por favor, agarda mentras QFIELD importa o(s) conxunto(s) de datos </string>
+    <string name="update_project_wait">Por favor, agarde mentres QField actualiza o proxecto local</string>
+    <string name="upload_pending_attachments">Subindo actualmente os ficheiros anexos a QFieldCloud</string>
+    <string name="operation_unsupported">Operación Non Admitida</string>
+    <string name="import_operation_unsupported">O dispositivo no admite esta operación de importación.</string>
+    <string name="export_operation_unsupported">O dispositivo no admite esta operación de exportación.</string>
+    <string name="processing_message">Procesando...</string>
+    <string name="positioning_title">Posicionamento</string>
+    <string name="positioning_running">Servizo de posicionamento funcionando</string>
+    <string name="copy_to_clipboard">Copiar ó portapapeis</string>
+</resources>

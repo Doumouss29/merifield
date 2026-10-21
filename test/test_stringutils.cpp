@@ -1,0 +1,52 @@
+/***************************************************************************
+                        test_stringutils.h
+                        --------------------
+  begin                : Jun 2020
+  copyright            : (C) 2020 by Ivan Ivanov
+  email                : ivan@opengis.ch
+***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+#include "catch2.h"
+#include "utils/qfstringutils.h"
+
+
+TEST_CASE( "StringUtils" )
+{
+  SECTION( "InsertLinks" )
+  {
+    REQUIRE( QfStringUtils::insertLinks( QStringLiteral( "http://osm.org/" ) ) == QStringLiteral( "<a href=\"http://osm.org/\">http://osm.org/</a>" ) );
+    REQUIRE( QfStringUtils::insertLinks( QStringLiteral( "https://osm.org/" ) ) == QStringLiteral( "<a href=\"https://osm.org/\">https://osm.org/</a>" ) );
+    REQUIRE( QfStringUtils::insertLinks( QStringLiteral( "before https://osm.org/ after" ) ) == QStringLiteral( "before <a href=\"https://osm.org/\">https://osm.org/</a> after" ) );
+    REQUIRE( QfStringUtils::insertLinks( QStringLiteral( "before https://osm.org/path?resource=;or=this%20one after" ) ) == QStringLiteral( "before <a href=\"https://osm.org/path?resource=;or=this%20one\">https://osm.org/path?resource=;or=this%20one</a> after" ) );
+  }
+
+  SECTION( "HighlightText" )
+  {
+    REQUIRE( QfStringUtils::highlightText( "QField roxx", "", QColor( Qt::black ) ) == "QField roxx" );
+    REQUIRE( QfStringUtils::highlightText( "QField roxx", "rox", QColor( Qt::black ) ) == "QField <span style=\"text-decoration:underline;color:#000000\">rox</span>x" );
+    REQUIRE( QfStringUtils::highlightText( "QField roxx", "doxx", QColor( Qt::black ) ) == "QField roxx" );
+    REQUIRE( QfStringUtils::highlightText( "QField <roxx>", "rox", QColor( Qt::black ) ) == "QField &lt;<span style=\"text-decoration:underline;color:#000000\">rox</span>x&gt;" );
+    REQUIRE( QfStringUtils::highlightText( "QField rox - rox", "rox", QColor( Qt::black ) ) == "QField <span style=\"text-decoration:underline;color:#000000\">rox</span> - <span style=\"text-decoration:underline;color:#000000\">rox</span>" );
+
+    REQUIRE( QfStringUtils::highlightText( "Béziers", "bez", QColor( Qt::black ) ) == "<span style=\"text-decoration:underline;color:#000000\">Béz</span>iers" );
+    REQUIRE( QfStringUtils::highlightText( "Crème brûlée", "creme", QColor( Qt::black ) ) == "<span style=\"text-decoration:underline;color:#000000\">Crème</span> brûlée" );
+    REQUIRE( QfStringUtils::highlightText( "beziers", "béz", QColor( Qt::black ) ) == "<span style=\"text-decoration:underline;color:#000000\">bez</span>iers" );
+  }
+
+  SECTION( "HtmlToPlainText" )
+  {
+    REQUIRE( QfStringUtils::htmlToPlainText( QString() ) == QString() );
+    REQUIRE( QfStringUtils::htmlToPlainText( QStringLiteral( "QField roxx" ) ) == QStringLiteral( "QField roxx" ) );
+    REQUIRE( QfStringUtils::htmlToPlainText( QStringLiteral( "<p>QField <a href=\"https://qfield.org\">roxx</a></p>\n<p>Open QField&rsquo;s settings</p>" ) ) == QStringLiteral( "QField roxx Open QField’s settings" ) );
+    REQUIRE( QfStringUtils::htmlToPlainText( QStringLiteral( "<figure><img src=\"https://qfield.org/image.webp\"></figure><p>QField roxx</p>" ) ) == QStringLiteral( "QField roxx" ) );
+  }
+}

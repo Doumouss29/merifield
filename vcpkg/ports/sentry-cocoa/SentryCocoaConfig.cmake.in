@@ -1,0 +1,30 @@
+set(SentryCocoa 1.0.0)
+@PACKAGE_INIT@
+
+add_library(SentryCocoa::sentry_cocoa INTERFACE IMPORTED)
+
+### TODO: find a better place than here to set the linker parameter "-force_load"
+
+# Compute the installation prefix relative to this file.
+get_filename_component(_IMPORT_PREFIX "${CMAKE_CURRENT_LIST_FILE}" PATH)
+get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+get_filename_component(_IMPORT_PREFIX "${_IMPORT_PREFIX}" PATH)
+if(_IMPORT_PREFIX STREQUAL "/")
+  set(_IMPORT_PREFIX "")
+endif()
+
+target_include_directories(SentryCocoa::sentry_cocoa INTERFACE "${_IMPORT_PREFIX}/lib")
+target_compile_options(SentryCocoa::sentry_cocoa INTERFACE "-F${_IMPORT_PREFIX}/lib")
+
+# Make sure we include all symbols, even when unused. Sentry dynamically loads some classes by name.
+target_link_libraries(SentryCocoa::sentry_cocoa INTERFACE "-F${_IMPORT_PREFIX}/lib" "-Wl,-force_load,${_IMPORT_PREFIX}/lib/Sentry.framework/Sentry")
+target_link_libraries(SentryCocoa::sentry_cocoa INTERFACE "-framework CoreData")
+if("@CMAKE_SYSTEM_NAME@" STREQUAL "Darwin")
+  target_link_libraries(SentryCocoa::sentry_cocoa INTERFACE "-framework AppKit")
+elseif("@CMAKE_SYSTEM_NAME@" STREQUAL "iOS")
+  target_link_libraries(SentryCocoa::sentry_cocoa INTERFACE "-framework UIKit" "-framework AVFoundation" "-framework CoreGraphics" "-framework CoreMedia" "-framework MetricKit" "-framework PDFKit" "-framework WebKit")
+endif()
+
+# Cleanup temporary variables.
+set(_IMPORT_PREFIX)

@@ -1,0 +1,93 @@
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Material
+import QtQuick.Controls.Material.impl
+import org.qfield.core
+import org.qfield.gui
+
+/**
+ * \ingroup qml_gui
+ */
+RoundButton {
+  id: button
+
+  property alias iconSource: button.icon.source
+  property alias iconColor: button.icon.color
+  property alias statusBadge: badge
+  property string bottomRightIndicatorText: ''
+  property string bottomRightIndicatorBgColor: QfTheme.cloudColor
+  property string bottomRightIndicatorFgColor: QfTheme.light
+  property bool round: false
+  property bool roundborder: false
+  property alias bgcolor: backgroundRectangle.color
+  property alias backgroundRadius: backgroundRectangle.radius
+  property color borderColor: 'transparent'
+
+  width: QfTheme.toolButtonSize
+  height: QfTheme.toolButtonSize
+  implicitWidth: width
+  implicitHeight: height
+  focusPolicy: Qt.NoFocus
+
+  topInset: 0
+  bottomInset: 0
+  leftInset: 0
+  rightInset: 0
+  padding: 10
+
+  background: Rectangle {
+    id: backgroundRectangle
+    implicitWidth: 100
+    implicitHeight: 25
+    border.width: round && roundborder ? height / 6 : 1
+    border.color: button.borderColor
+    color: 'transparent'
+    radius: round ? height / 2 : roundborder ? 12 : 0
+    clip: true
+
+    Behavior on color {
+      ColorAnimation {
+        duration: 200
+      }
+    }
+
+    Ripple {
+      id: ripple
+      clip: true
+      width: parent.width
+      height: parent.height
+      clipRadius: 4
+      pressed: button.down
+      anchor: parent
+      active: button.down
+      color: QfTheme.darkTheme ? bgcolor == "#ffffff" ? "#10000000" : "#10ffffff" : bgcolor == "#ffffff" || bgcolor == "#00000000" ? "#10000000" : "#22ffffff"
+    }
+  }
+
+  icon.source: ""
+  icon.color: "transparent" // setting the color to transparent tells Qt to draw the icon using the original source color(s)
+  icon.width: Math.min(width, height) / 2
+  icon.height: Math.min(width, height) / 2
+
+  Material.foreground: icon.color
+  font: QfTheme.tipFont
+
+  QfBadge {
+    id: badge
+    alignment: QfBadge.Alignment.BottomRight
+
+    z: 2
+    width: button.width / 2.5
+    height: width
+    visible: bottomRightIndicatorText
+    color: bottomRightIndicatorBgColor
+    border.color: QfTheme.mainBackgroundColor
+    border.width: Math.max(1, button.width / 24)
+
+    badgeText.color: bottomRightIndicatorFgColor
+    badgeText.text: bottomRightIndicatorText
+
+    bottomMargin: button.width * 0.15
+    rightMargin: button.width * 0.1
+  }
+}

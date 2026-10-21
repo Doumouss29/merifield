@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>English</string>
+
+    <!-- Executable Name -->
+    <key>CFBundleExecutable</key>
+    <string>${MACOSX_BUNDLE_EXECUTABLE_NAME}</string>
+
+    <!-- Info for finder -->
+    <key>CFBundleGetInfoString</key>
+    <string>${MACOSX_BUNDLE_INFO_STRING}</string>
+
+    <!-- Full screen, allow multi task or not  -->
+    <key>UIRequiresFullScreen</key>
+    <string>${MACOSX_BUNDLE_REQUIRES_FULL_SCREEN}</string>
+
+    <!-- Hide the status bar -->
+    <key>UIStatusBarHidden</key>
+    <${MACOSX_BUNDLE_HIDDEN_STATUS_BAR}/>
+
+    <!-- If supporting multitask LaunchScreen.storyboard must be provided -->
+    <key>UILaunchStoryboardName</key>
+    <string>${MACOSX_BUNDLE_LAUNCHSCREEN_STORYBOARD}</string>
+
+    <!-- Optionnal StoryBoard filename -->
+    <key>UIMainStoryboardFile</key>
+    <string>${MACOSX_BUNDLE_MAIN_STORYBOARD}</string>
+
+    <!-- Name displayed -->
+    <key>CFBundleIdentifier</key>
+    <string>${MACOSX_BUNDLE_GUI_IDENTIFIER}</string>
+
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <!-- Long version that include build number or git commit -->
+    <key>CFBundleLongVersionString</key>
+    <string>${MACOSX_BUNDLE_LONG_VERSION_STRING}</string>
+
+    <!-- Unique bundle name across AppStore -->
+    <key>CFBundleName</key>
+    <string>${MACOSX_BUNDLE_BUNDLE_NAME}</string>
+
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+
+    <!-- Short Version -->
+    <key>CFBundleShortVersionString</key>
+    <string>${MACOSX_BUNDLE_SHORT_VERSION_STRING}</string>
+
+    <key>CFBundleSignature</key>
+    <string>????</string>
+
+    <!-- Bundle Version to detect update on AppStore -->
+    <key>CFBundleVersion</key>
+    <string>${MACOSX_BUNDLE_BUNDLE_VERSION}</string>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Needed to overlay device location on top of the map canvas as well as providing positioning details and navigation.</string>
+
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Needed to provide tracking functionality.</string>
+
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>location</string>
+    </array>
+
+    <!-- Peripherals -->
+    <key>NSCameraUsageDescription</key>
+    <string>Need to access your camera to capture pictures.</string>
+
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Need to access your microphone to record audio attachments.</string>
+
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Need to access your picture library to attach pictures and videos attachments</string>
+
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>Bluetooth access needed to connect an external GNSS device.</string>
+
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>Bluetooth access needed to connect an external GNSS device.</string>
+
+    <key>NFCReaderUsageDescription</key>
+    <string>NFC access needed to read text from tags.</string>
+
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>Local network access needed to connect to an external GNSS via NMEA streams.</string>
+
+    <key>CSResourcesFileMapped</key>
+    <true/>
+
+    <!-- External GNSS through non-HTTPS TCP -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+
+    <!-- Copyright -->
+    <key>NSHumanReadableCopyright</key>
+    <string>${MACOSX_BUNDLE_COPYRIGHT}</string>
+
+    <!-- Ui Orientation -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>${MACOSX_BUNDLE_PORTRAIT}</string>
+        <string>${MACOSX_BUNDLE_PORTRAITUPDOWN}</string>
+        <string>${MACOSX_BUNDLE_LANDSCAPELEFT}</string>
+        <string>${MACOSX_BUNDLE_LANDSCAPERIGHT}</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>${MACOSX_BUNDLE_PORTRAIT}</string>
+        <string>${MACOSX_BUNDLE_PORTRAITUPDOWN}</string>
+        <string>${MACOSX_BUNDLE_LANDSCAPELEFT}</string>
+        <string>${MACOSX_BUNDLE_LANDSCAPERIGHT}</string>
+    </array>
+
+    <key>ITSAppUsesNonExemptEncryption</key><false/>
+
+    <!-- Files handling -->
+    <key>UIFileSharingEnabled</key>
+    <true/>
+
+    <key>UISupportsDocumentBrowser</key>
+    <true/>
+
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>file</string>
+        <string>URL</string>
+    </array>
+
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>qfield</string>
+            </array>
+        </dict>
+    </array>
+
+    <!-- Document types QField can open when shared from other applications -->
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>QGIS project</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>org.qgis.qgs</string>
+                <string>org.qgis.qgz</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>Geospatial dataset</string>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>org.opengeospatial.geopackage</string>
+                <string>com.mapbox.mbtiles</string>
+                <string>org.geojson.geojson</string>
+                <string>com.google.earth.kml</string>
+                <string>com.google.earth.kmz</string>
+                <string>com.topografix.gpx</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>Supported document</string>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>LSHandlerRank</key>
+            <string>Alternate</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.adobe.pdf</string>
+                <string>public.zip-archive</string>
+                <string>public.json</string>
+                <string>public.tiff</string>
+                <string>public.jpeg-2000</string>
+            </array>
+        </dict>
+    </array>
+
+    <!-- Type declarations for geospatial extensions iOS does not know natively -->
+    <key>UTImportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>org.qgis.qgs</string>
+            <key>UTTypeDescription</key>
+            <string>QGIS project</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.xml</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>qgs</string>
+                </array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>org.qgis.qgz</string>
+            <key>UTTypeDescription</key>
+            <string>QGIS compressed project</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.zip-archive</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>qgz</string>
+                </array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>org.opengeospatial.geopackage</string>
+            <key>UTTypeDescription</key>
+            <string>GeoPackage</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>gpkg</string>
+                </array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.mapbox.mbtiles</string>
+            <key>UTTypeDescription</key>
+            <string>MBTiles</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>mbtiles</string>
+                </array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>org.geojson.geojson</string>
+            <key>UTTypeDescription</key>
+            <string>GeoJSON</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.json</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>geojson</string>
+                </array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.google.earth.kml</string>
+            <key>UTTypeDescription</key>
+            <string>KML</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.xml</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>kml</string>
+                </array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.google.earth.kmz</string>
+            <key>UTTypeDescription</key>
+            <string>KMZ</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.zip-archive</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>kmz</string>
+                </array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.topografix.gpx</string>
+            <key>UTTypeDescription</key>
+            <string>GPX</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.xml</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>gpx</string>
+                </array>
+            </dict>
+        </dict>
+    </array>
+</dict>
+</plist>

@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">Hozzáférés minden fájlhoz</string>
+    <string name="grant_all_files_permission"><![CDATA[A QField-nek minden fájl hozzáférési engedélyére szüksége van, a helyi projektek és adatállományok megnyitásához, valamint az egyéni vetületi hálók, betűtípusok és alaptérképek támogatásához. Bár nem kötelező, <i>a hozzáférés megadása erősen ajánlott</i>.<br/><br/>A következő képernyőn, kérlek válaszd<b>a QField-et</b> és válaszd a <b>Hozzáférés megadása minden fájlhoz</b> lehetőséget.]]></string>
+    <string name="grant">Engedélyez</string>
+    <string name="deny_always">Véglegesen megtagad</string>
+    <string name="deny_once">Megtagad egyszer</string>
+    <string name="import_error">Import hiba</string>
+    <string name="import_dataset_error">A kiválasztott adatállomány(ok) nem importálhatók megfelelően.</string>
+    <string name="import_project_archive_error">A kiválasztott tömörített projekt nem importálódott megfelelően</string>
+    <string name="import_project_folder_error">A kiválasztott projekt könyvtár nem importálódott megfelelően.</string>
+    <string name="import_overwrite_title">Import figyelmeztetés</string>
+    <string name="import_overwrite_folder">Ez a projekt könyvtár már létezik. A művelet felülírja annak adatait. Folytatja az importálást?</string>
+    <string name="import_overwrite_dataset_single">Az adatállomány már létezik. A művelet felülírja azt. Folytatja az importálást?</string>
+    <string name="import_overwrite_dataset_multiple">Egy vagy több adatállomány már létezik. A művelet felülírja ezeket. Folytatja az importálást?</string>
+    <string name="import_overwrite_confirm">Import és felülírás</string>
+    <string name="import_overwrite_cancel">Mégsem</string>
+    <string name="export_error">Export hiba</string>
+    <string name="export_to_folder_error">A kiválasztott projekt könyvtár nem exportálódott megfelelően.</string>
+    <string name="delete_confirm_title">Eltávolítás megerősítése</string>
+    <string name="delete_confirm_dataset">Az adatállomány végleges törlésre kerül. Folytassam az eltávolítást?</string>
+    <string name="delete_confirm_folder">A projekt mappát véglegesen törlöm, folytassuk az eltávolítást?</string>
+    <string name="delete_confirm">Eltávolít</string>
+    <string name="delete_cancel">Mégsem</string>
+    <string name="storage_information_title">Tárolási információk</string>
+    <string name="storage_information_message">Ha korábbi QField 1.x felhasználó, aki csodálkozik, hogy hová tűntek el a projektjei és adatállományai, vagy új a QField használatában, javasoljuk, hogy szánjon egy percet a tároláskezelési dokumentáció elolvasására. Ennek a dokumentációnak a parancsikonja továbbra is elérhető marad a címsor, műveletek menüjében.</string>
+    <string name="storage_information_view">Mutasd a dokumentációt</string>
+    <string name="storage_information_dismiss">Később olvasom el</string>
+    <string name="import_project_wait">Kérjük várjon, amíg a QGIS importálja a projektet</string>
+    <string name="import_dataset_wait">Kérjük várjon, amíg a QField importálja az adatállomány(oka)t</string>
+    <string name="update_project_wait">Kérjük várjon, amíg a QField aktualizálja a helyi projektet</string>
+    <string name="upload_pending_attachments">A csatolmányok feltöltése a QFieldCloud-ba most</string>
+    <string name="operation_unsupported">Nem támogatott művelet</string>
+    <string name="import_operation_unsupported">Az eszköze nem támogatja ezt az import műveletet.</string>
+    <string name="export_operation_unsupported">Az eszköze nem támogatja ezt az export műveletet.</string>
+    <string name="processing_message">Feldolgozás...</string>
+    <string name="positioning_title">Pozícionálás</string>
+    <string name="positioning_running">Helymeghatározási szolgáltatás aktív</string>
+    <string name="copy_to_clipboard">Másolás  vágólapra</string>
+</resources>

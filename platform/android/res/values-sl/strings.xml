@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">Dostop do vseh datotek</string>
+    <string name="grant_all_files_permission"><![CDATA[QField potrebuje dovoljenje za dostop do vseh datotek, za zagon lokalnih projektov in dostop do zbirk podatkov ter podprtih projekcij, pisav in osnovnih kart po meri. Čeprav ni potrebno, <i>je dovoljenje dostopa zelo priporočljivo</i>.<br/><br/> Na naslednjem zaslonu izberite<b>QField</b> in izberite možnost <b>Dovoli dostop do vseh datotek</b>.]]></string>
+    <string name="grant">Dovoli</string>
+    <string name="deny_always">Trajno zavrni</string>
+    <string name="deny_once">Zavrni enkrat</string>
+    <string name="import_error">Napaka pri uvozu</string>
+    <string name="import_dataset_error">Izbrane(ih) zbirke podatkov ni bilo mogoče uvoziti pravilno.</string>
+    <string name="import_project_archive_error">Izbrani projekt ni bil uvožen pravilno.</string>
+    <string name="import_project_folder_error">Izbrana mapa projekta ni bila uvožena pravilno.</string>
+    <string name="import_overwrite_title">Opozorilo pri uvozu</string>
+    <string name="import_overwrite_folder">Mapa projekta že obstaja. Ta operacija bo prepisala njene podatke. Želiš nadaljevati z uvozom?</string>
+    <string name="import_overwrite_dataset_single">Zbirka podatkov že obstaja. Ta operacija jo bo prepisala. Želiš nadaljevati z uvozom?</string>
+    <string name="import_overwrite_dataset_multiple">Ena ali več zbirk podatkov že obstaja. Ta operacija jih bo prepisala. Želiš nadaljevati z uvozom?</string>
+    <string name="import_overwrite_confirm">Uvozi in prepiši</string>
+    <string name="import_overwrite_cancel">Prekliči</string>
+    <string name="export_error">Napaka pri izvozu</string>
+    <string name="export_to_folder_error">Izbrana mapa projekta ni bila pravilno izvožena.</string>
+    <string name="delete_confirm_title">Potrditev izbrisa</string>
+    <string name="delete_confirm_dataset">Zbirka podatkov bo trajno izbrisana. Želiš nadaljevati z odstranitvijo?</string>
+    <string name="delete_confirm_folder">Mapa projekta bo trajno izbrisana. Želiš nadaljevati z odstranitvijo?</string>
+    <string name="delete_confirm">Odstrani</string>
+    <string name="delete_cancel">Prekliči</string>
+    <string name="storage_information_title">Informacije o shranjevanju</string>
+    <string name="storage_information_message">Če si že obstoječi uporabnik QField-a 1.x in se sprašuješ, zakaj so tvoji projekti in zbirke podatkov izginili, ali si šele začel uporabljati QField, predlagamo, da si vzameš nekaj trenutkov in prebereš dokumentacijo o shranjevanju. Bližnjica do te dokumentacije je dostopna v meniju naslovne vrstice.</string>
+    <string name="storage_information_view">Pokaži mi dokumentacijo</string>
+    <string name="storage_information_dismiss">Prebral bom kasneje</string>
+    <string name="import_project_wait">Počakaj, medtem QField uvaža projekt</string>
+    <string name="import_dataset_wait">Počakaj, medtem QField uvaža zbirko(e) podatkov</string>
+    <string name="update_project_wait">Počakaj, medtem QField posodablja lokalno shranjen projekt</string>
+    <string name="upload_pending_attachments">Trenutno poteka nalaganje priponk v QFieldCloud</string>
+    <string name="operation_unsupported">Operacija ni podprta</string>
+    <string name="import_operation_unsupported">Tvoja naprava ne podpira te operacije uvoza.</string>
+    <string name="export_operation_unsupported">Tvoja naprava ne podpira te operacije izvoza.</string>
+    <string name="processing_message">Obdelujem...</string>
+    <string name="positioning_title">Določanje položaja</string>
+    <string name="positioning_running">Določanje položaja je aktivno</string>
+    <string name="copy_to_clipboard">Kopiraj v odložišče</string>
+</resources>

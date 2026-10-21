@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">訪問所有文件</string>
+    <string name="grant_all_files_permission"><![CDATA[QField 需要所有文件訪問權限才能打開本地項目和數據集以及支持自定義投影網格、字體和底圖。雖然不是必需的，<i>但強烈建議允許訪問 </i>。在下<br/><br/>一個屏幕上，請選擇 <b>QField </b>並選擇 <b>Allow access to all files</b> 選項。]]></string>
+    <string name="grant">允許</string>
+    <string name="deny_always">始终拒绝</string>
+    <string name="deny_once">拒絕一次</string>
+    <string name="import_error">匯入錯誤</string>
+    <string name="import_dataset_error">無法正確匯入所選數據集</string>
+    <string name="import_project_archive_error">無法正確匯入所選專案</string>
+    <string name="import_project_folder_error">無法正確匯入所選資料夾</string>
+    <string name="import_overwrite_title">匯入警告</string>
+    <string name="import_overwrite_folder">此專案資料夾已存在。該操作將覆蓋其資料，是否繼續匯入？</string>
+    <string name="import_overwrite_dataset_single">此數據集已存在。該操作將覆蓋其資料，是否繼續匯入？</string>
+    <string name="import_overwrite_dataset_multiple">一個或多個數據集已存在。該操作將覆蓋其資料，是否繼續匯入？</string>
+    <string name="import_overwrite_confirm">匯入並覆寫</string>
+    <string name="import_overwrite_cancel">取消</string>
+    <string name="export_error">匯出錯誤</string>
+    <string name="export_to_folder_error">無法正確匯出所選資料夾</string>
+    <string name="delete_confirm_title">確認移除</string>
+    <string name="delete_confirm_dataset">數據集將被永久刪除，是否繼續刪除?</string>
+    <string name="delete_confirm_folder">專案資料夾將被永久刪除，是否繼續刪除?</string>
+    <string name="delete_confirm">移除</string>
+    <string name="delete_cancel">取消</string>
+    <string name="storage_information_title">儲存資訊</string>
+    <string name="storage_information_message">無論您是原來使用過 QField 1.x 的用戶，因專案和數據集丟失了，還是剛接觸QField，我們都建議您花一點時間閱讀儲存處理文檔。此文檔的快捷方式仍可在標題欄的操作菜單中訪問。</string>
+    <string name="storage_information_view">給我看看文檔</string>
+    <string name="storage_information_dismiss">我稍後閱讀</string>
+    <string name="import_project_wait">QField正在匯入專案，請稍候</string>
+    <string name="import_dataset_wait">QField正在匯入數據集，請稍候</string>
+    </resources>

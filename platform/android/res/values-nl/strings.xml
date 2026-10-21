@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">Toegang tot alle bestanden</string>
+    <string name="grant_all_files_permission"><![CDATA[QField heeft toegangsrechten voor alle bestanden nodig om lokale projecten en datasets te kunnen openen en om aangepaste projectierasters, lettertypen en basiskaarten te ondersteunen. Hoewel dit niet vereist is, <i>wordt het ten zeerste aanbevolen om toegang te verlenen</i>. <br/><br/>Selecteer in het volgende scherm <b>QField</b> en selecteer de optie <b>Toegang tot alle bestanden toestaan</b>.]]></string>
+    <string name="grant">Toestaan</string>
+    <string name="deny_always">Permanent Weigeren</string>
+    <string name="deny_once">Eenmalig Weigeren</string>
+    <string name="import_error">Importfout</string>
+    <string name="import_dataset_error">De geselecteerde dataset(s) konden niet correct worden geïmporteerd.</string>
+    <string name="import_project_archive_error">Het geselecteerde projectarchief is niet goed geïmporteerd.</string>
+    <string name="import_project_folder_error">De geselecteerde projectmap is niet goed geïmporteerd.</string>
+    <string name="import_overwrite_title">Importwaarschuwing</string>
+    <string name="import_overwrite_folder">Deze projectmap bestaat al. Deze bewerking zal de gegevens overschrijven, doorgaan met importeren?</string>
+    <string name="import_overwrite_dataset_single">Deze dataset bestaat al. Deze bewerking zal het overschrijven, doorgaan met importeren?</string>
+    <string name="import_overwrite_dataset_multiple">Er bestaan al een of meer datasets. Deze bewerking zal deze overschrijven, doorgaan met importeren?</string>
+    <string name="import_overwrite_confirm">Importeren en Overschrijven</string>
+    <string name="import_overwrite_cancel">Annuleren</string>
+    <string name="export_error">Exportfout</string>
+    <string name="export_to_folder_error">De geselecteerde projectmap is niet goed geëxporteerd.</string>
+    <string name="delete_confirm_title">Verwijderingsbevestiging</string>
+    <string name="delete_confirm_dataset">De dataset wordt definitief verwijderd, doorgaan met verwijderen?</string>
+    <string name="delete_confirm_folder">De projectmap wordt permanent verwijderd, doorgaan met verwijderen?</string>
+    <string name="delete_confirm">Verwijderen</string>
+    <string name="delete_cancel">Annuleren</string>
+    <string name="storage_information_title">Opslaginformatie</string>
+    <string name="storage_information_message">Of u nu een bestaande QField 1.x-gebruiker bent en zich afvraagt waarom uw projecten en datasets zijn verdwenen of nieuw voor QField, we raden u aan even de tijd te nemen om de documentatie over opslagverwerking te lezen. Een snelkoppeling naar deze documentatie blijft toegankelijk in het actiemenu van de titelbalk.</string>
+    <string name="storage_information_view">Toon me de documentatie</string>
+    <string name="storage_information_dismiss">Ik lees later</string>
+    <string name="import_project_wait">Een ogenblik geduld terwijl QField het project importeert</string>
+    <string name="import_dataset_wait">Een ogenblik geduld terwijl QField de dataset(s) importeert</string>
+    <string name="update_project_wait">Even geduld terwijl QField het lokale project bijwerkt</string>
+    <string name="upload_pending_attachments">Momenteel bijlagen aan het uploaden naar QFieldCloud</string>
+    <string name="operation_unsupported">Niet-ondersteunde bewerking</string>
+    <string name="import_operation_unsupported">Uw apparaat ondersteunt deze importbewerking niet.</string>
+    <string name="export_operation_unsupported">Uw apparaat ondersteunt deze exportbewerking niet.</string>
+    <string name="processing_message">Verwerking...</string>
+    <string name="positioning_title">Positie</string>
+    <string name="positioning_running">Positioneringsdienst draait</string>
+    <string name="copy_to_clipboard">Kopiëren naar klembord</string>
+</resources>

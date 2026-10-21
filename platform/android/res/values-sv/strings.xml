@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">Åtkomst till alla filer</string>
+    <string name="grant_all_files_permission"><![CDATA[QField behöver behörighet att komma åt alla filer för att kunna öppna lokala projekt och datamängder samt använda anpassade projektionsrutnät, typsnitt och baskartor. Även om behörigheten inte krävs är det <i>starkt rekommenderat att ge åtkomst</i>.<br/><br/>Välj <b>QField</b> på nästa skärm och aktivera alternativet <b>Tillåt åtkomst till alla filer</b>.]]></string>
+    <string name="grant">Tillåt</string>
+    <string name="deny_always">Neka permanent</string>
+    <string name="deny_once">Neka en gång</string>
+    <string name="import_error">Importfel</string>
+    <string name="import_dataset_error">En eller flera valda datamängder kunde inte importeras korrekt.</string>
+    <string name="import_project_archive_error">Det valda projektarkivet kunde inte importeras korrekt.</string>
+    <string name="import_project_folder_error">Den valda projektmappen kunde inte importeras korrekt.</string>
+    <string name="import_overwrite_title">Importvarning</string>
+    <string name="import_overwrite_folder">Projektmappen finns redan. Åtgärden skriver över dess data. Vill du fortsätta med importen?</string>
+    <string name="import_overwrite_dataset_single">Datamängden finns redan. Åtgärden skriver över den. Vill du fortsätta med importen?</string>
+    <string name="import_overwrite_dataset_multiple">En eller flera datamängder finns redan. Åtgärden skriver över dem. Vill du fortsätta med importen?</string>
+    <string name="import_overwrite_confirm">Importera och skriv över</string>
+    <string name="import_overwrite_cancel">Avbryt</string>
+    <string name="export_error">Exportfel</string>
+    <string name="export_to_folder_error">Den valda projektmappen kunde inte exporteras korrekt.</string>
+    <string name="delete_confirm_title">Bekräfta borttagning</string>
+    <string name="delete_confirm_dataset">Datamängden raderas permanent. Vill du fortsätta?</string>
+    <string name="delete_confirm_folder">Projektmappen raderas permanent. Vill du fortsätta?</string>
+    <string name="delete_confirm">Ta bort</string>
+    <string name="delete_cancel">Avbryt</string>
+    <string name="storage_information_title">Lagringsinformation</string>
+    <string name="storage_information_message">Oavsett om du har använt QField 1.x tidigare och undrar varför dina projekt och datamängder har försvunnit, eller om du är ny i QField, rekommenderar vi att du tar en minut och läser dokumentationen om lagringshantering. En genväg till dokumentationen finns även fortsättningsvis i namnlistens åtgärdsmeny.</string>
+    <string name="storage_information_view">Visa dokumentationen</string>
+    <string name="storage_information_dismiss">Jag läser den senare</string>
+    <string name="import_project_wait">Vänta medan QField importerar projektet</string>
+    <string name="import_dataset_wait">Vänta medan QField importerar datamängder</string>
+    <string name="update_project_wait">Vänta medan QField uppdaterar det lokala projektet</string>
+    <string name="upload_pending_attachments">Laddar upp bilagor till QFieldCloud</string>
+    <string name="operation_unsupported">Åtgärden stöds inte</string>
+    <string name="import_operation_unsupported">Enheten stöder inte den här importåtgärden.</string>
+    <string name="export_operation_unsupported">Enheten stöder inte den här exportåtgärden.</string>
+    <string name="processing_message">Bearbetar…</string>
+    <string name="positioning_title">Positionering</string>
+    <string name="positioning_running">Positioneringstjänsten körs</string>
+    <string name="copy_to_clipboard">Kopiera till urklipp</string>
+</resources>

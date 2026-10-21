@@ -1,0 +1,904 @@
+/***************************************************************************
+  qfiosplatformutilities.mm  -  utilities for qfield
+
+  -------------------
+  begin                : November 2020
+  copyright            : (C) 2020 by Denis Rouzaud
+  email                : denis@opengis.ch
+***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+#include "qfiosplatformutilities.h"
+#include "qfappinterface.h"
+#include "qffileutils.h"
+#include "qfield.h"
+#include "qfiosprojectsource.h"
+#include "qfiosresourcesource.h"
+
+#include <AVFoundation/AVFoundation.h>
+#include <CoreLocation/CoreLocation.h>
+#include <MediaPlayer/MediaPlayer.h>
+#include <MobileCoreServices/MobileCoreServices.h>
+#include <UIKit/UIDocumentInteractionController.h>
+#include <UIKit/UIKit.h>
+#include <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+
+#include <QFileInfo>
+#include <QGuiApplication>
+#include <QStandardPaths>
+#include <objc/runtime.h>
+#include <qpa/qplatformnativeinterface.h>
+
+#include <QDirIterator>
+#include <qgsziputils.h>
+
+#include <QtGui>
+#include <QtQuick>
+
+@interface DocViewController
+    : UIViewController <UIDocumentInteractionControllerDelegate>
+@end
+
+@implementation DocViewController
+#pragma mark -
+#pragma mark View Life Cycle
+- (void)viewDidLoad {
+  [super viewDidLoad];
+}
+#pragma mark -
+#pragma mark Document Interaction Controller Delegate Methods
+- (UIViewController *)documentInteractionControllerViewControllerForPreview:
+    (UIDocumentInteractionController *)controller {
+  return self;
+}
+- (void)documentInteractionControllerDidEndPreview:
+    (UIDocumentInteractionController *)controller {
+  [self removeFromParentViewController];
+}
+@end
+
+#pragma mark -
+#pragma mark Volume Button Observer
+
+static const float sVolumeStep = 0.0625f;
+static const float sMaxVolume = 0.99999f - sVolumeStep;
+static const float sMinVolume = 0.00001f + sVolumeStep;
+
+@interface QFieldVolumeButtonObserver : NSObject {
+  MPVolumeView *_volumeView;
+  float _initialVolume;
+  BOOL _observing;
+  BOOL _appIsActive;
+}
+- (void)start;
+- (void)stop;
+@end
+
+@implementation QFieldVolumeButtonObserver
+
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    _appIsActive = YES;
+    _volumeView = [[MPVolumeView alloc]
+        initWithFrame:CGRectMake(MAXFLOAT, MAXFLOAT, 0, 0)];
+    _volumeView.hidden = YES;
+    [[UIApplication sharedApplication].windows.firstObject
+        addSubview:_volumeView];
+  }
+  return self;
+}
+
+- (void)setSystemVolume:(float)volume {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  dispatch_async(dispatch_get_main_queue(), ^{
+      [[MPMusicPlayerController applicationMusicPlayer] setVolume:volume];
+  });
+#pragma clang diagnostic pop
+}
+
+- (void)captureInitialVolume {
+  _initialVolume = [AVAudioSession sharedInstance].outputVolume;
+  if (_initialVolume > sMaxVolume) {
+    _initialVolume = sMaxVolume;
+    [self setSystemVolume:_initialVolume];
+  } else if (_initialVolume < sMinVolume) {
+    _initialVolume = sMinVolume;
+    [self setSystemVolume:_initialVolume];
+  }
+}
+
+- (void)start {
+  if (_observing) {
+    return;
+  }
+  AVAudioSession *session = [AVAudioSession sharedInstance];
+  NSError *error = nil;
+  [self captureInitialVolume];
+  [session setActive:YES error:&error];
+  [session addObserver:self
+            forKeyPath:@"outputVolume"
+               options:NSKeyValueObservingOptionNew
+               context:NULL];
+  _volumeView.hidden = NO;
+
+  [[NSNotificationCenter defaultCenter]
+      addObserver:self
+         selector:@selector(applicationDidChangeActive:)
+             name:UIApplicationWillResignActiveNotification
+           object:nil];
+  [[NSNotificationCenter defaultCenter]
+      addObserver:self
+         selector:@selector(applicationDidChangeActive:)
+             name:UIApplicationDidBecomeActiveNotification
+           object:nil];
+  _observing = YES;
+}
+
+- (void)stop {
+  if (!_observing) {
+    return;
+  }
+  @try {
+    [[AVAudioSession sharedInstance] removeObserver:self
+                                         forKeyPath:@"outputVolume"
+                                            context:NULL];
+  } @catch (__unused NSException *exception) {
+  }
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+  _volumeView.hidden = YES;
+  _observing = NO;
+}
+
+- (void)dealloc {
+  [self stop];
+  MPVolumeView *volumeView = _volumeView;
+  dispatch_async(dispatch_get_main_queue(), ^{
+      [volumeView removeFromSuperview];
+  });
+}
+
+- (void)applicationDidChangeActive:(NSNotification *)notification {
+  _appIsActive = [notification.name
+      isEqualToString:UIApplicationDidBecomeActiveNotification];
+  if (_observing && _appIsActive) {
+    [self captureInitialVolume];
+  }
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey, id> *)change
+                       context:(void *)context {
+  if (![keyPath isEqualToString:@"outputVolume"]) {
+    [super observeValueForKeyPath:keyPath
+                         ofObject:object
+                           change:change
+                          context:context];
+    return;
+  }
+
+  NSNumber *newValueNumber = change[NSKeyValueChangeNewKey];
+  if (newValueNumber == nil) {
+    return;
+  }
+  const float newVolume = newValueNumber.floatValue;
+
+  if (!_appIsActive) {
+    return;
+  }
+  if (newVolume == _initialVolume) {
+    return;
+  }
+
+  if (QfAppInterface::instance()) {
+    if (newVolume > _initialVolume) {
+      emit QfAppInterface::instance()->volumeKeyUp(Qt::Key_VolumeUp);
+    } else {
+      emit QfAppInterface::instance()->volumeKeyUp(Qt::Key_VolumeDown);
+    }
+  }
+
+  [self setSystemVolume:_initialVolume];
+}
+
+@end
+
+static QString incomingDirectory() {
+  return QString::fromNSString(
+      [NSTemporaryDirectory() stringByAppendingPathComponent:@"Incoming"]);
+}
+
+static QString incomingPath(const QString &fileName) {
+  return QStringLiteral("%1/%2/%3")
+      .arg(incomingDirectory(), QString::fromNSString([NSUUID UUID].UUIDString),
+           fileName);
+}
+
+static bool isInsideApplicationDirectory(const QString &path,
+                                         const QString &appDir) {
+  const QString canonicalPath = QFileInfo(path).canonicalFilePath();
+  const QString canonicalAppDir = QFileInfo(appDir).canonicalFilePath();
+  if (canonicalPath.isEmpty() || canonicalAppDir.isEmpty()) {
+    return false;
+  }
+  // Inbox holds copies iOS made for us, those still need importing
+  return canonicalPath.startsWith(canonicalAppDir + QStringLiteral("/")) &&
+         !canonicalPath.startsWith(canonicalAppDir + QStringLiteral("/Inbox/"));
+}
+
+static void (*originalOpenUrlContexts)(id, SEL, UIScene *,
+                                       NSSet<UIOpenURLContext *> *) = nullptr;
+
+// Qt only passes the path of opened URLs on, which drops the security scope of
+// files opened in place, so those are copied here while the scope is reachable
+static void openUrlContexts(id sceneDelegate, SEL selector, UIScene *scene,
+                            NSSet<UIOpenURLContext *> *contexts) {
+  const QString appDir =
+      QfPlatformUtilities::instance()->applicationDirectory();
+  NSMutableSet<UIOpenURLContext *> *forwardedContexts = [NSMutableSet set];
+  for (UIOpenURLContext *context in contexts) {
+    NSURL *url = context.URL;
+    if (!url.isFileURL || !context.options.openInPlace ||
+        isInsideApplicationDirectory(QString::fromNSString(url.path), appDir)) {
+      [forwardedContexts addObject:context];
+      continue;
+    }
+
+    const QString destinationPath =
+        incomingPath(QString::fromNSString(url.lastPathComponent));
+    NSURL *destination = [NSURL fileURLWithPath:destinationPath.toNSString()];
+    NSString *directory =
+        QFileInfo(destinationPath).absolutePath().toNSString();
+    const BOOL accessing = [url startAccessingSecurityScopedResource];
+
+    // Reading may first download the file from iCloud
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        [fileManager createDirectoryAtPath:directory
+               withIntermediateDirectories:YES
+                                attributes:nil
+                                     error:nil];
+        __block BOOL copied = NO;
+        NSFileCoordinator *coordinator =
+            [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        [coordinator
+            coordinateReadingItemAtURL:url
+                               options:NSFileCoordinatorReadingWithoutChanges
+                                 error:nil
+                            byAccessor:^(NSURL *readingUrl) {
+                                copied = [fileManager copyItemAtURL:readingUrl
+                                                              toURL:destination
+                                                              error:nil];
+                            }];
+        if (accessing) {
+          [url stopAccessingSecurityScopedResource];
+        }
+        if (copied) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+              QDesktopServices::openUrl(
+                  QUrl::fromLocalFile(QString::fromNSString(destination.path)));
+          });
+        }
+    });
+  }
+
+  if (forwardedContexts.count > 0) {
+    originalOpenUrlContexts(sceneDelegate, selector, scene, forwardedContexts);
+  }
+}
+
+static void installOpenInPlaceHandling() {
+  Method method =
+      class_getInstanceMethod(NSClassFromString(@"QIOSWindowSceneDelegate"),
+                              @selector(scene:openURLContexts:));
+  if (!method) {
+    return;
+  }
+  originalOpenUrlContexts = reinterpret_cast<void (*)(
+      id, SEL, UIScene *, NSSet<UIOpenURLContext *> *)>(
+      method_setImplementation(method, reinterpret_cast<IMP>(openUrlContexts)));
+}
+
+QfIosPlatformUtilities::QfIosPlatformUtilities() : QfPlatformUtilities() {
+  NSError *sessionError = nil;
+  [[AVAudioSession sharedInstance]
+      setCategory:AVAudioSessionCategoryPlayAndRecord
+            error:&sessionError];
+  mVolumeButtonObserver = [[QFieldVolumeButtonObserver alloc] init];
+  installOpenInPlaceHandling();
+}
+
+void QfIosPlatformUtilities::setHandleVolumeKeys(const bool handle) {
+  if (!mVolumeButtonObserver) {
+    return;
+  }
+  if (handle) {
+    [mVolumeButtonObserver start];
+  } else {
+    [mVolumeButtonObserver stop];
+  }
+}
+
+QfPlatformUtilities::Capabilities QfIosPlatformUtilities::capabilities() const {
+  QfPlatformUtilities::Capabilities capabilities =
+      Capabilities() | NativeCamera | AdjustBrightness | FilePicker |
+      CustomImport | CustomSend | CustomExport | UpdateProjectFromArchive |
+      VolumeKeys | CustomFileAssociation;
+#if WITH_SENTRY
+  capabilities |= SentryFramework;
+#endif
+  return capabilities;
+}
+
+void QfIosPlatformUtilities::afterUpdate() {
+  // Create imported projects and datasets folders
+  QDir appDir(applicationDirectory());
+  appDir.mkdir(QStringLiteral("Imported Projects"));
+  appDir.mkdir(QStringLiteral("Imported Datasets"));
+  appDir.mkpath(QStringLiteral("QField/proj"));
+  appDir.mkpath(QStringLiteral("QField/auth"));
+  appDir.mkpath(QStringLiteral("QField/fonts"));
+  appDir.mkpath(QStringLiteral("QField/basemaps"));
+  appDir.mkpath(QStringLiteral("QField/logs"));
+}
+
+QString QfIosPlatformUtilities::systemSharedDataLocation() const {
+  NSBundle *main = [NSBundle mainBundle];
+  NSString *bundlePath = [main bundlePath];
+  QString path = [bundlePath UTF8String];
+  return path + "/share";
+}
+
+QString QfIosPlatformUtilities::applicationDirectory() const {
+  return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+}
+
+QStringList QfIosPlatformUtilities::appDataDirs() const {
+  return QStringList() << QStringLiteral("%1/QField/")
+                              .arg(QStandardPaths::writableLocation(
+                                  QStandardPaths::DocumentsLocation));
+}
+
+void QfIosPlatformUtilities::setScreenLockPermission(const bool allowLock) {
+  if (allowLock) {
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
+  } else {
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
+  }
+}
+
+QfResourceSource *QfIosPlatformUtilities::getCameraPicture(
+    const QString &prefix, const QString &pictureFilePath,
+    const QString &suffix, QObject *parent) {
+  QfIosResourceSource *pictureSource =
+      new QfIosResourceSource(prefix, pictureFilePath, parent);
+  pictureSource->takePicture();
+  return pictureSource;
+}
+
+QfResourceSource *
+QfIosPlatformUtilities::getCameraVideo(const QString &prefix,
+                                       const QString &videoFilePath,
+                                       const QString &suffix, QObject *parent) {
+  QfIosResourceSource *pictureSource =
+      new QfIosResourceSource(prefix, videoFilePath, parent);
+  pictureSource->takeVideo();
+  return pictureSource;
+}
+
+QfResourceSource *QfIosPlatformUtilities::getGalleryPicture(
+    const QString &prefix, const QString &pictureFilePath, QObject *parent) {
+  QfIosResourceSource *pictureSource =
+      new QfIosResourceSource(prefix, pictureFilePath, parent);
+  pictureSource->pickGalleryPicture();
+  return pictureSource;
+}
+
+QfResourceSource *QfIosPlatformUtilities::getGalleryVideo(
+    const QString &prefix, const QString &videoFilePath, QObject *parent) {
+  QfIosResourceSource *videoSource =
+      new QfIosResourceSource(prefix, videoFilePath, parent);
+  videoSource->pickGalleryVideo();
+  return videoSource;
+}
+
+QfViewStatus *QfIosPlatformUtilities::open(const QString &uri, bool,
+                                           QObject *) {
+  // Code from https://bugreports.qt.io/browse/QTBUG-42942
+  NSString *nsFilePath = uri.toNSString();
+  NSURL *nsFileUrl = [NSURL fileURLWithPath:nsFilePath];
+
+  static DocViewController *mtv = nil;
+  if (mtv != nil) {
+    [mtv removeFromParentViewController];
+  }
+
+  UIDocumentInteractionController *documentInteractionController = nil;
+  documentInteractionController =
+      [UIDocumentInteractionController interactionControllerWithURL:nsFileUrl];
+  UIViewController *rootv = [[[[UIApplication sharedApplication] windows]
+      firstObject] rootViewController];
+  if (rootv != nil) {
+    mtv = [[DocViewController alloc] init];
+    [rootv addChildViewController:mtv];
+    documentInteractionController.delegate = mtv;
+    [documentInteractionController presentPreviewAnimated:NO];
+  }
+
+  return nullptr;
+}
+
+QfProjectSource *QfIosPlatformUtilities::openProject(QObject *parent) {
+  QSettings settings;
+  QfIosProjectSource *projectSource = new QfIosProjectSource(parent);
+  projectSource->pickProject();
+  return projectSource;
+}
+
+bool QfIosPlatformUtilities::isSystemDarkTheme() const {
+  if (@available(iOS 12.0, *)) {
+    switch (UIScreen.mainScreen.traitCollection.userInterfaceStyle) {
+    case UIUserInterfaceStyleDark:
+      return true;
+
+    case UIUserInterfaceStyleLight:
+    case UIUserInterfaceStyleUnspecified:
+    default:
+      return false;
+    }
+  }
+  return false;
+}
+
+Qt::PermissionStatus QfIosPlatformUtilities::checkCameraPermission() const {
+  switch ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo]) {
+  case AVAuthorizationStatusNotDetermined: {
+    return Qt::PermissionStatus::Undetermined;
+  }
+  case AVAuthorizationStatusAuthorized: {
+    return Qt::PermissionStatus::Granted;
+  }
+  case AVAuthorizationStatusDenied:
+  case AVAuthorizationStatusRestricted: {
+    return Qt::PermissionStatus::Denied;
+  }
+    return Qt::PermissionStatus::Undetermined;
+  }
+}
+
+void QfIosPlatformUtilities::requestCameraPermission(
+    std::function<void(Qt::PermissionStatus)> func) {
+  [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
+                           completionHandler:^(BOOL granted) {
+                               func(granted ? Qt::PermissionStatus::Granted
+                                            : Qt::PermissionStatus::Denied);
+                           }];
+}
+
+Qt::PermissionStatus QfIosPlatformUtilities::checkMicrophonePermission() const {
+  switch ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio]) {
+  case AVAuthorizationStatusNotDetermined: {
+    return Qt::PermissionStatus::Undetermined;
+  }
+  case AVAuthorizationStatusAuthorized: {
+    return Qt::PermissionStatus::Granted;
+  }
+  case AVAuthorizationStatusDenied:
+  case AVAuthorizationStatusRestricted: {
+    return Qt::PermissionStatus::Denied;
+  }
+    return Qt::PermissionStatus::Undetermined;
+  }
+}
+
+void QfIosPlatformUtilities::requestMicrophonePermission(
+    std::function<void(Qt::PermissionStatus)> func) {
+  [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
+                           completionHandler:^(BOOL granted) {
+                               func(granted ? Qt::PermissionStatus::Granted
+                                            : Qt::PermissionStatus::Denied);
+                           }];
+}
+
+static char kIosImportDelegateKey;
+static char kIosExportDelegateKey;
+
+static void copyDirectoryContents(NSURL *sourceURL, NSString *destinationPath) {
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  [fileManager createDirectoryAtPath:destinationPath
+         withIntermediateDirectories:YES
+                          attributes:nil
+                               error:nil];
+  NSArray *contents = [fileManager contentsOfDirectoryAtURL:sourceURL
+                                 includingPropertiesForKeys:nil
+                                                    options:0
+                                                      error:nil];
+  for (NSURL *item in contents) {
+    NSString *destPath =
+        [destinationPath stringByAppendingPathComponent:item.lastPathComponent];
+    BOOL isDir = NO;
+    [fileManager fileExistsAtPath:item.path isDirectory:&isDir];
+    if (isDir) {
+      copyDirectoryContents(item, destPath);
+    } else {
+      [fileManager removeItemAtPath:destPath error:nil];
+      [fileManager copyItemAtPath:item.path toPath:destPath error:nil];
+    }
+  }
+}
+
+@interface IosImportDelegate : NSObject <UIDocumentPickerDelegate>
+@property(nonatomic, strong) NSString *importPath;
+@property(nonatomic, strong) NSString *mode;
+@end
+
+@implementation IosImportDelegate
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller
+    didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
+  if (urls.count == 0) {
+    return;
+  }
+
+  NSURL *url = urls.firstObject;
+  [url startAccessingSecurityScopedResource];
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+
+  if ([_mode isEqualToString:@"projectFolder"]) {
+    NSString *folderName = url.lastPathComponent;
+    NSString *destPath =
+        [_importPath stringByAppendingPathComponent:folderName];
+    [fileManager createDirectoryAtPath:_importPath
+           withIntermediateDirectories:YES
+                            attributes:nil
+                                 error:nil];
+    copyDirectoryContents(url, destPath);
+    [url stopAccessingSecurityScopedResource];
+
+    QString importedPath = QString::fromNSString(destPath);
+    if (QfAppInterface::instance()) {
+      emit QfAppInterface::instance()->openPath(importedPath);
+    }
+  } else if ([_mode isEqualToString:@"projectArchive"]) {
+    NSString *baseName = [url.lastPathComponent stringByDeletingPathExtension];
+    NSString *destPath = [_importPath stringByAppendingPathComponent:baseName];
+    [fileManager createDirectoryAtPath:destPath
+           withIntermediateDirectories:YES
+                            attributes:nil
+                                 error:nil];
+
+    QString zipPath = QString::fromNSString(url.path);
+    QString destDir = QString::fromNSString(destPath);
+    QStringList extractedFiles;
+    QfFileUtils::unzip(zipPath, destDir, extractedFiles, false);
+    [url stopAccessingSecurityScopedResource];
+
+    if (QfAppInterface::instance()) {
+      emit QfAppInterface::instance()->openPath(destDir);
+    }
+  } else if ([_mode isEqualToString:@"datasets"]) {
+    [fileManager createDirectoryAtPath:_importPath
+           withIntermediateDirectories:YES
+                            attributes:nil
+                                 error:nil];
+    [url stopAccessingSecurityScopedResource];
+
+    for (NSURL *fileUrl in urls) {
+      [fileUrl startAccessingSecurityScopedResource];
+      NSString *destFile = [_importPath
+          stringByAppendingPathComponent:fileUrl.lastPathComponent];
+      [fileManager removeItemAtPath:destFile error:nil];
+      [fileManager copyItemAtPath:fileUrl.path toPath:destFile error:nil];
+      [fileUrl stopAccessingSecurityScopedResource];
+    }
+
+    QString importedPath = QString::fromNSString(_importPath);
+    if (QfAppInterface::instance()) {
+      emit QfAppInterface::instance()->openPath(importedPath);
+    }
+  } else if ([_mode isEqualToString:@"updateFromArchive"]) {
+    if (QfAppInterface::instance()) {
+      QfAppInterface::instance()->clearProject();
+    }
+
+    QString zipPath = QString::fromNSString(url.path);
+    QString destDir = QString::fromNSString(_importPath);
+    QStringList extractedFiles;
+    QfFileUtils::unzip(zipPath, destDir, extractedFiles, false);
+    [url stopAccessingSecurityScopedResource];
+
+    if (QfAppInterface::instance()) {
+      QfAppInterface::instance()->reloadProject();
+    }
+  }
+}
+
+- (void)documentPickerWasCancelled:
+    (UIDocumentPickerViewController *)controller {
+}
+
+@end
+
+@interface IosExportDelegate : NSObject <UIDocumentPickerDelegate>
+@property(nonatomic, strong) NSArray<NSString *> *sourcePaths;
+@end
+
+@implementation IosExportDelegate
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller
+    didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
+  if (urls.count == 0) {
+    return;
+  }
+
+  NSURL *destURL = urls.firstObject;
+  [destURL startAccessingSecurityScopedResource];
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+
+  for (NSString *srcPath in _sourcePaths) {
+    NSString *destPath =
+        [destURL.path stringByAppendingPathComponent:srcPath.lastPathComponent];
+    [fileManager removeItemAtPath:destPath error:nil];
+    [fileManager copyItemAtPath:srcPath toPath:destPath error:nil];
+  }
+
+  [destURL stopAccessingSecurityScopedResource];
+}
+
+- (void)documentPickerWasCancelled:
+    (UIDocumentPickerViewController *)controller {
+}
+
+@end
+
+void QfIosPlatformUtilities::exportFolderTo(const QString &path) const {
+  UIViewController *root = [[[[UIApplication sharedApplication] windows]
+      firstObject] rootViewController];
+
+  UIDocumentPickerViewController *picker =
+      [[UIDocumentPickerViewController alloc]
+          initForOpeningContentTypes:@[ UTTypeFolder ]];
+  picker.allowsMultipleSelection = NO;
+
+  IosExportDelegate *delegate = [[IosExportDelegate alloc] init];
+  delegate.sourcePaths = @[ path.toNSString() ];
+  picker.delegate = delegate;
+  objc_setAssociatedObject(picker, &kIosExportDelegateKey, delegate,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+  [root presentViewController:picker animated:YES completion:nil];
+}
+
+void QfIosPlatformUtilities::exportDatasetTo(const QString &path) const {
+  NSMutableArray<NSString *> *sourcePaths = [NSMutableArray array];
+  [sourcePaths addObject:path.toNSString()];
+
+  const QSet<QString> sidecarFiles = QfFileUtils::sidecarFilesForPath(path);
+  for (const QString &file : sidecarFiles) {
+    [sourcePaths addObject:file.toNSString()];
+  }
+
+  UIViewController *root = [[[[UIApplication sharedApplication] windows]
+      firstObject] rootViewController];
+
+  UIDocumentPickerViewController *picker =
+      [[UIDocumentPickerViewController alloc]
+          initForOpeningContentTypes:@[ UTTypeFolder ]];
+  picker.allowsMultipleSelection = NO;
+
+  IosExportDelegate *delegate = [[IosExportDelegate alloc] init];
+  delegate.sourcePaths = sourcePaths;
+  picker.delegate = delegate;
+  objc_setAssociatedObject(picker, &kIosExportDelegateKey, delegate,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+  [root presentViewController:picker animated:YES completion:nil];
+}
+
+void QfIosPlatformUtilities::importProjectFolder() const {
+  QString appDir = applicationDirectory();
+  NSString *importBasePath =
+      (appDir + QStringLiteral("/Imported Projects/")).toNSString();
+
+  UIViewController *root = [[[[UIApplication sharedApplication] windows]
+      firstObject] rootViewController];
+
+  UIDocumentPickerViewController *picker =
+      [[UIDocumentPickerViewController alloc]
+          initForOpeningContentTypes:@[ UTTypeFolder ]];
+  picker.allowsMultipleSelection = NO;
+
+  IosImportDelegate *delegate = [[IosImportDelegate alloc] init];
+  delegate.importPath = importBasePath;
+  delegate.mode = @"projectFolder";
+  picker.delegate = delegate;
+  objc_setAssociatedObject(picker, &kIosImportDelegateKey, delegate,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+  [root presentViewController:picker animated:YES completion:nil];
+}
+
+void QfIosPlatformUtilities::importProjectArchive() const {
+  QString appDir = applicationDirectory();
+  NSString *importBasePath =
+      (appDir + QStringLiteral("/Imported Projects/")).toNSString();
+
+  UIViewController *root = [[[[UIApplication sharedApplication] windows]
+      firstObject] rootViewController];
+
+  UIDocumentPickerViewController *picker =
+      [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[
+        [UTType typeWithIdentifier:@"public.zip-archive"]
+      ]];
+  picker.allowsMultipleSelection = NO;
+
+  IosImportDelegate *delegate = [[IosImportDelegate alloc] init];
+  delegate.importPath = importBasePath;
+  delegate.mode = @"projectArchive";
+  picker.delegate = delegate;
+  objc_setAssociatedObject(picker, &kIosImportDelegateKey, delegate,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+  [root presentViewController:picker animated:YES completion:nil];
+}
+
+void QfIosPlatformUtilities::importDatasets() const {
+  QString appDir = applicationDirectory();
+  NSString *importBasePath =
+      (appDir + QStringLiteral("/Imported Datasets/")).toNSString();
+
+  UIViewController *root = [[[[UIApplication sharedApplication] windows]
+      firstObject] rootViewController];
+
+  UIDocumentPickerViewController *picker =
+      [[UIDocumentPickerViewController alloc]
+          initForOpeningContentTypes:@[ UTTypeData ]];
+  picker.allowsMultipleSelection = YES;
+
+  IosImportDelegate *delegate = [[IosImportDelegate alloc] init];
+  delegate.importPath = importBasePath;
+  delegate.mode = @"datasets";
+  picker.delegate = delegate;
+  objc_setAssociatedObject(picker, &kIosImportDelegateKey, delegate,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+  [root presentViewController:picker animated:YES completion:nil];
+}
+
+void QfIosPlatformUtilities::handleFileAssociation(const QString &path) const {
+  QFileInfo fileInfo(path);
+  if (!fileInfo.exists() || !fileInfo.isFile() || !QfAppInterface::instance()) {
+    return;
+  }
+
+  QString sourcePath = path;
+  if (isInsideApplicationDirectory(path, applicationDirectory())) {
+    // Files tapped in QField's own folder are opened where they are
+    if (fileInfo.suffix().toLower() != QLatin1String("zip")) {
+      if (!QfAppInterface::instance()->loadFile(path)) {
+        emit QfAppInterface::instance()->openPath(fileInfo.absolutePath());
+      }
+      return;
+    }
+
+    // Archives are imported from a copy so the user's zip stays where it is
+    sourcePath = incomingPath(fileInfo.fileName());
+    QDir().mkpath(QFileInfo(sourcePath).absolutePath());
+    if (!QFile::copy(path, sourcePath)) {
+      return;
+    }
+  }
+
+  emit QfAppInterface::instance()->importTriggered(fileInfo.fileName());
+  QfAppInterface::instance()->importLocalFile(sourcePath, true);
+  if (sourcePath.startsWith(incomingDirectory() + QStringLiteral("/"))) {
+    QDir(QFileInfo(sourcePath).absolutePath()).removeRecursively();
+  }
+}
+
+void QfIosPlatformUtilities::sendDatasetTo(const QString &path) const {
+  NSMutableArray *items = [NSMutableArray array];
+  [items addObject:[NSURL fileURLWithPath:path.toNSString()]];
+
+  const QSet<QString> sidecarFiles = QfFileUtils::sidecarFilesForPath(path);
+  if (!sidecarFiles.isEmpty()) {
+    QStringList paths;
+    paths << path;
+    for (const QString &file : sidecarFiles) {
+      paths << file;
+    }
+    QString tempZipPath =
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+        QStringLiteral("/") + QFileInfo(path).fileName() +
+        QStringLiteral(".zip");
+    QFile::remove(tempZipPath);
+    if (QgsZipUtils::zip(tempZipPath, paths)) {
+      items = [NSMutableArray array];
+      [items addObject:[NSURL fileURLWithPath:tempZipPath.toNSString()]];
+    }
+  }
+
+  UIViewController *root = [[[[UIApplication sharedApplication] windows]
+      firstObject] rootViewController];
+
+  UIActivityViewController *activityVC =
+      [[UIActivityViewController alloc] initWithActivityItems:items
+                                        applicationActivities:nil];
+  activityVC.popoverPresentationController.sourceView = root.view;
+  activityVC.popoverPresentationController.sourceRect =
+      CGRectMake(root.view.bounds.size.width / 2.0,
+                 root.view.bounds.size.height / 2.0, 1.0, 1.0);
+
+  [root presentViewController:activityVC animated:YES completion:nil];
+}
+
+void QfIosPlatformUtilities::sendCompressedFolderTo(
+    const QString &path, const QString &fileName) const {
+  QString zipName = fileName.isEmpty()
+                        ? QFileInfo(path).fileName()
+                        : QfFileUtils::sanitizeFilePathPart(fileName);
+  QString tempZipPath =
+      QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+      QStringLiteral("/") + zipName + QStringLiteral(".zip");
+  QFile::remove(tempZipPath);
+
+  QStringList files;
+  QDirIterator it(path, QDir::Files, QDirIterator::Subdirectories);
+  while (it.hasNext()) {
+    files << it.next();
+  }
+
+  if (files.isEmpty() || !QgsZipUtils::zip(tempZipPath, files)) {
+    return;
+  }
+
+  NSMutableArray *items = [NSMutableArray array];
+  [items addObject:[NSURL fileURLWithPath:tempZipPath.toNSString()]];
+
+  UIViewController *root = [[[[UIApplication sharedApplication] windows]
+      firstObject] rootViewController];
+
+  UIActivityViewController *activityVC =
+      [[UIActivityViewController alloc] initWithActivityItems:items
+                                        applicationActivities:nil];
+  activityVC.popoverPresentationController.sourceView = root.view;
+  activityVC.popoverPresentationController.sourceRect =
+      CGRectMake(root.view.bounds.size.width / 2.0,
+                 root.view.bounds.size.height / 2.0, 1.0, 1.0);
+
+  [root presentViewController:activityVC animated:YES completion:nil];
+}
+
+void QfIosPlatformUtilities::updateProjectFromArchive(
+    const QString &projectPath) const {
+  QString importPath = QFileInfo(projectPath).absolutePath();
+  NSString *importBasePath = importPath.toNSString();
+
+  UIViewController *root = [[[[UIApplication sharedApplication] windows]
+      firstObject] rootViewController];
+
+  UIDocumentPickerViewController *picker =
+      [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:@[
+        [UTType typeWithIdentifier:@"public.zip-archive"]
+      ]];
+  picker.allowsMultipleSelection = NO;
+
+  IosImportDelegate *delegate = [[IosImportDelegate alloc] init];
+  delegate.importPath = importBasePath;
+  delegate.mode = @"updateFromArchive";
+  picker.delegate = delegate;
+  objc_setAssociatedObject(picker, &kIosImportDelegateKey, delegate,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+  [root presentViewController:picker animated:YES completion:nil];
+}

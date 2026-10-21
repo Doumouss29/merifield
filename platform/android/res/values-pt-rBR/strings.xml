@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">Acesso a todos os ficheiros</string>
+    <string name="grant_all_files_permission"><![CDATA[O QField necessita de permissão a todos os arquivos para que possa abrir os projetos locais e conjuntos dados assim como as grades personalizadas de projeções, fontes e mapas base. Quando não requerido, <i>permitir o acesso é altamente recomendado</i>.<br/><br/>Na próxima tela, por favor selecione <b>QField</b> e selecione a opção <b>Permitir o acesso a todos os arquivos</b>.]]></string>
+    <string name="grant">Permitir</string>
+    <string name="deny_always">Proibir Permanentemente</string>
+    <string name="deny_once">Proibir uma vez</string>
+    <string name="import_error">Erro de Importação</string>
+    <string name="import_dataset_error">Os conjuntos de dado(s) selecionados não foram importados de forma correta.</string>
+    <string name="import_project_archive_error">O arquivo de projeto selecionado não foi importado corretamente.</string>
+    <string name="import_project_folder_error">A pasta do projeto selecionada não foi importada corretamente.</string>
+    <string name="import_overwrite_title">Aviso de importação</string>
+    <string name="import_overwrite_folder">Esta pasta do projeto já existe. Esta operação irá sobrescrever seus dados, prosseguir com a importação?</string>
+    <string name="import_overwrite_dataset_single">Este conjunto de dados já existe. Esta operação irá sobrescrevê-lo, prosseguir com a importação?</string>
+    <string name="import_overwrite_dataset_multiple">Já existe um ou mais conjuntos de dados. Esta operação irá sobrescrever estes, prosseguir com a importação?</string>
+    <string name="import_overwrite_confirm">Importar e substituir</string>
+    <string name="import_overwrite_cancel">Cancelar</string>
+    <string name="export_error">Erro de exportação</string>
+    <string name="export_to_folder_error">A pasta do projeto selecionada não foi exportada corretamente.</string>
+    <string name="delete_confirm_title">Confirmação de Remoção</string>
+    <string name="delete_confirm_dataset">O conjunto de dados será permanentemente excluído, proceder com a remoção?</string>
+    <string name="delete_confirm_folder">A pasta do projeto será permanentemente excluída, proceder com a remoção?</string>
+    <string name="delete_confirm">Remover</string>
+    <string name="delete_cancel">Cancelar</string>
+    <string name="storage_information_title">Informações de armazenamento</string>
+    <string name="storage_information_message">Se você é um usuário pré-existente do QField 1.x se perguntando por que seus projetos e conjuntos de dados desapareceram ou são novos no QField, sugerimos que você reserve um minuto para ler a documentação de manuseio de armazenamento. Um atalho para esta documentação permanecerá acessível no menu de ações da barra de título.</string>
+    <string name="storage_information_view">Mostre-me a documentação</string>
+    <string name="storage_information_dismiss">Vou ler depois</string>
+    <string name="import_project_wait">Aguarde enquanto o QField está importando o projeto</string>
+    <string name="import_dataset_wait">Aguarde enquanto o QField está importando o(s) conjunto(s) de dados</string>
+    <string name="update_project_wait">Aguarde enquanto o QField está atualizando o projeto local</string>
+    <string name="upload_pending_attachments">Carregando anexos para a QFieldCloud</string>
+    <string name="operation_unsupported">Operação não suportada</string>
+    <string name="import_operation_unsupported">Seu dispositivo não é compatível com essa operação de importação.</string>
+    <string name="export_operation_unsupported">Seu dispositivo não é compatível com essa operação de exportação.</string>
+    <string name="processing_message">Processando...</string>
+    <string name="positioning_title">Posicionamento</string>
+    <string name="positioning_running">Serviço de posicionamento em execução</string>
+    <string name="copy_to_clipboard">Copiar para a área de transferência</string>
+</resources>

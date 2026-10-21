@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant">Onartu</string>
+    <string name="deny_always">Ukatu betiko</string>
+    <string name="deny_once">Ukatu behin</string>
+    <string name="import_error">Inportazio-errorea</string>
+    <string name="import_dataset_error">Hautatutako datu multzoa(k) ezin izan d(ir)a ongi inportatu.</string>
+    <string name="import_project_archive_error">Hautatutako proiektu-fitxategia ez da ongi inportatu</string>
+    <string name="import_project_folder_error">Hautatutako proiektu-karpeta ez da ongi inportatu.</string>
+    <string name="import_overwrite_title">Inportazio-abisua</string>
+    <string name="import_overwrite_confirm">Inportatu eta gainidatzi</string>
+    <string name="import_overwrite_cancel">Utzi</string>
+    <string name="export_error">Esportazio-errorea</string>
+    <string name="export_to_folder_error">Hautatutako proiektu-karpeta ez da ongi esportatu.</string>
+    <string name="delete_confirm_title">Baieztatu kentzea</string>
+    <string name="delete_confirm_dataset">Datu multzo hau betiko ezabatuko da, jarraitu?</string>
+    <string name="delete_confirm_folder">Proiektu-karpeta betiko ezabatuko da, jarraitu?</string>
+    <string name="delete_confirm">Kendu</string>
+    <string name="delete_cancel">Utzi</string>
+    <string name="storage_information_title">Biltegiratze-informazioa</string>
+    <string name="storage_information_view">Erakutsi dokumentazioa</string>
+    <string name="storage_information_dismiss">Geroago irakurriko dut</string>
+    <string name="import_project_wait">Itxaron QField-ek proiektua inportatu arte</string>
+    <string name="import_dataset_wait">Itxaron QField-ek datu multzoa(k) inportatu arte</string>
+    <string name="operation_unsupported">Eragiketa ez da onartzen</string>
+    <string name="import_operation_unsupported">Zure gailuak ez du inportazio-eragiketa hau onartzen.</string>
+    <string name="export_operation_unsupported">Zure gailuak ez du esportazio-eragiketa hau onartzen</string>
+    <string name="positioning_title">Lokalizazioa</string>
+    </resources>

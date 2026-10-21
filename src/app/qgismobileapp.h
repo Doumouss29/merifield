@@ -1,0 +1,289 @@
+/***************************************************************************
+                            qgismobileapp.h
+                              -------------------
+              begin                : Wed Apr 04 10:48:28 CET 2012
+              copyright            : (C) 2012 by Marco Bernasocchi
+              email                : marco@bernawebdesign.ch
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+#ifndef QGISMOBILEAPP_H
+#define QGISMOBILEAPP_H
+
+// Qt includes
+#include <QtQml/QQmlApplicationEngine>
+
+// QGIS includes
+#include <qgsapplication.h>
+#include <qgsconfig.h>
+#include <qgsexiftools.h>
+#include <qgsmaplayerproxymodel.h>
+#include <qgsunittypes.h>
+
+// QField includes
+#include "qfappauthrequesthandler.h"
+#include "qfappcontroller.h"
+#include "qfappcoordinateoperationhandlers.h"
+#include "qfbookmarkmodel.h"
+#include "qfclipboardmanager.h"
+#include "qfcogoregistry.h"
+#include "qfdrawingtemplatemodel.h"
+#include "qffocusstack.h"
+#include "qfield_app_export.h"
+#include "qfpluginmanager.h"
+#include "qfscreendimmer.h"
+#include "qfsettings.h"
+#include "qfurlhandler.h"
+#include "qgsgpkgflusher.h"
+
+class QfAppInterface;
+class QfAppMissingGridHandler;
+class QfAsyncLegendImageProvider;
+class QfBarcodeImageProvider;
+class QfFlatLayerTreeModel;
+class QfLayerTreeMapCanvasBridge;
+class QfLegendImageProvider;
+class QfLocalFilesImageProvider;
+class QfMarkupManager;
+class QfProjectsImageProvider;
+class QfTrackingModel;
+class QfLocatorFiltersModel;
+class QfLayerObserver;
+class QfFeatureHistory;
+class QfMessageLogModel;
+class QgsOfflineEditing;
+class QgsQuickMapCanvasMap;
+class QgsProject;
+class QgsPrintLayout;
+
+/**
+ * \defgroup app
+ * \brief QField application C++ classes
+ */
+
+/**
+ * \ingroup app
+ */
+class QFIELD_APP_EXPORT QgisMobileapp : public QQmlApplicationEngine, public QfAppController
+{
+    Q_OBJECT
+  public:
+    explicit QgisMobileapp( QgsApplication *app, QObject *parent = nullptr );
+    ~QgisMobileapp() override;
+
+    /**
+     * Set the project or dataset file path to be loaded.
+     *
+     * \param path The project or dataset file to load
+     * \param name The project name
+     * \note The actual loading is done in readProjectFile
+     */
+    bool loadProjectFile( const QString &path, const QString &name = QString() ) override;
+
+    /**
+     * Reloads the current project
+     *
+     * \note It does not reset the Auth Request Handler.
+     * \note The actual loading is done in readProjectFile
+     */
+    void reloadProjectFile() override;
+
+    /**
+     * Reads and opens the project file set in the loadProjectFile function
+     */
+    void readProjectFile() override;
+
+    /**
+     * Reads a string from the specified \a scope and \a key from the currently opened project
+     *
+     * \param scope entry scope (group) name
+     * \param key entry key name. Keys are '/'-delimited entries, implying a hierarchy of keys and corresponding values
+     * \param def default value to return if the specified \a key does not exist within the \a scope
+     *
+     * \returns entry value as string from \a scope given its \a key
+     */
+    QString readProjectEntry( const QString &scope, const QString &key, const QString &def = QString() ) const override;
+
+    /**
+     * Reads an integer from the specified \a scope and \a key from the currently opened project
+     *
+     * \param scope entry scope (group) name
+     * \param key entry key name. Keys are '/'-delimited entries, implying a hierarchy of keys and corresponding values
+     * \param def default value to return if the specified \a key does not exist within the \a scope
+     *
+     * \returns entry value as integer from \a scope given its \a key
+     */
+    int readProjectNumEntry( const QString &scope, const QString &key, int def = 0 ) const override;
+
+    /**
+     * Reads a double from the specified \a scope and \a key from the currently opened project
+     *
+     * \param scope entry scope (group) name
+     * \param key entry key name. Keys are '/'-delimited entries, implying a hierarchy of keys and corresponding values
+     * \param def default value to return if the specified \a key does not exist within the \a scope
+     *
+     * \returns entry value as double from \a scope given its \a key
+     */
+    double readProjectDoubleEntry( const QString &scope, const QString &key, double def = 0.0 ) const override;
+
+    /**
+     * Reads a boolean from the specified \a scope and \a key from the currently opened project
+     *
+     * \param scope entry scope (group) name
+     * \param key entry key name. Keys are '/'-delimited entries, implying a hierarchy of keys and corresponding values
+     * \param def default value to return if the specified \a key does not exist within the \a scope
+     *
+     * \returns entry value as boolean from \a scope given its \a key
+     */
+    bool readProjectBoolEntry( const QString &scope, const QString &key, bool def = false ) const override;
+
+    /**
+     * Prints a given layout from the currently opened project to a PDF file
+     * \param layoutName the layout name that will be printed
+     * \return TRUE if the print was started, its outcome is reported through printEnded()
+     */
+    bool print( const QString &layoutName ) override;
+
+    /**
+     * Prints a given atlas-driven layout from the currently opened project to one or more PDF files
+     * \param layoutName the layout name that will be printed
+     * \param featureIds the features from the atlas coverage vector layer that will be used to print the layout
+     * \return TRUE if the print was started, its outcome is reported through printEnded()
+     */
+    bool printAtlasFeatures( const QString &layoutName, const QList<long long> &featureIds ) override;
+
+    /**
+     * Sets the screen dimmer timeout in seconds
+     * \note setting the timeout value to 0 will disable the screen dimmer
+     */
+    void setScreenDimmerTimeout( int timeoutSeconds ) override;
+
+    bool event( QEvent *event ) override;
+
+    /**
+     * Clear the currently opened project back to a blank project
+     */
+    void clearProject() override;
+
+    static void initDeclarative( QQmlEngine *engine );
+
+  signals:
+    /**
+     * Emitted when a project file is being loaded
+     *
+     * @param filename The filename of the project that is being loaded
+     * @param name The project name that is being loaded
+     */
+    void loadProjectTriggered( const QString &filename, const QString &name );
+
+    /**
+     * Emitted when the project is fully loaded
+     */
+    void loadProjectEnded( const QString &filename, const QString &name );
+
+    /**
+     * Emitted when a map canvas extent change is needed
+     */
+    void setMapExtent( const QgsRectangle &extent );
+
+    /**
+     * Emitted when a layout print has been triggered
+     *
+     * @param name The name of the layout being printed
+     */
+    void printTriggered( const QString &name );
+
+    /**
+     * Emitted when an ongoing print reports its progress
+     *
+     * @param progress The progress, between 0.0 and 1.0
+     */
+    void printProgress( double progress );
+
+    /**
+     * Emitted when a print has ended
+     *
+     * @param success Whether the layout made it to a PDF file
+     * @param folderPath The folder the output was written into, empty when the print failed
+     */
+    void printEnded( bool success, const QString &folderPath );
+
+  private slots:
+
+    void onAfterFirstRendering();
+    void onMapCanvasRefreshed();
+
+  private:
+    void registerGlobalVariables();
+    void prepareLocalizedDataPaths( const QString &projectFilePath );
+    void loadProjectQuirks();
+    void saveProjectPreviewImage();
+    bool printAtlas( QgsPrintLayout *layoutToPrint, const QString &destination );
+    QString layoutsFolder() const;
+
+    bool mIsPrinting = false;
+    QgsOfflineEditing *mOfflineEditing = nullptr;
+    QfLayerTreeMapCanvasBridge *mLayerTreeCanvasBridge = nullptr;
+    QfFlatLayerTreeModel *mFlatLayerTree = nullptr;
+    QgsMapLayerProxyModel *mLayerList = nullptr;
+    QfAppInterface *mIface = nullptr;
+    QfSettings mSettings;
+    QPointer<QgsQuickMapCanvasMap> mMapCanvas;
+    bool mFirstRenderingFlag;
+    QfLegendImageProvider *mLegendImageProvider = nullptr;
+    QfAsyncLegendImageProvider *mAsyncLegendImageProvider = nullptr;
+    QfLocalFilesImageProvider *mLocalFilesImageProvider = nullptr;
+    QfProjectsImageProvider *mProjectsImageProvider = nullptr;
+    QfBarcodeImageProvider *mBarcodeImageProvider = nullptr;
+
+    QgsProject *mProject = nullptr;
+    QString mProjectFilePath;
+    QString mProjectFileName;
+
+    std::unique_ptr<QfFocusStack> mFocusStack;
+    std::unique_ptr<QgsGpkgFlusher> mGpkgFlusher;
+    std::unique_ptr<QfLayerObserver> mLayerObserver;
+    std::unique_ptr<QfFeatureHistory> mFeatureHistory;
+    std::unique_ptr<QfClipboardManager> mClipboardManager;
+
+    QfAppAuthRequestHandler *mAuthRequestHandler = nullptr;
+
+    QfBookmarkModel *mBookmarkModel = nullptr;
+    QfDrawingTemplateModel *mDrawingTemplateModel = nullptr;
+    QfMessageLogModel *mMessageLogModel = nullptr;
+
+    QfPluginManager *mPluginManager = nullptr;
+
+    std::unique_ptr<QfCogoRegistry> mCogoRegistry;
+
+    // Dummy objects. We are not able to call static functions from QML, so we need something here.
+    QgsWkbTypes mWkbTypes;
+    QgsUnitTypes mUnitTypes;
+    QgsExifTools mExifTools;
+
+    QfTrackingModel *mTrackingModel = nullptr;
+
+    QfMarkupManager *mMarkupManager = nullptr;
+
+    QfAppMissingGridHandler *mAppMissingGridHandler = nullptr;
+
+    std::unique_ptr<QfScreenDimmer> mScreenDimmer;
+    std::unique_ptr<QfUrlHandler> mUrlHandler;
+
+    QgsApplication *mApp;
+};
+
+
+Q_DECLARE_METATYPE( QgsFeatureId )
+Q_DECLARE_METATYPE( QgsAttributes )
+Q_DECLARE_METATYPE( QgsFieldConstraints )
+
+#endif // QGISMOBILEAPP_H

@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">全てのファイルへのアクセス</string>
+    <string name="grant_all_files_permission"><![CDATA[QField は、ローカルプロジェクトやデータセットを開いたり、カスタム座標系のグリッド、フォント、ベースマップをサポートしたりするために、すべてのファイルへのアクセス許可が必要です。 必須ではありませんが、 <i>アクセスを許可することを強くお勧めします</i>。<br/><br/>次の画面で、<b>QField</b>を選択し、<b>全てのファイルへのアクセスを許可する</b> オプションを選択してください。]]></string>
+    <string name="grant">許可</string>
+    <string name="deny_always">必ず拒否</string>
+    <string name="deny_once">一度だけ拒否</string>
+    <string name="import_error">インポートエラー</string>
+    <string name="import_dataset_error">択したデータセットが正しくインポートされませんでした。</string>
+    <string name="import_project_archive_error">選択したプロジェクトのアーカイブが正しくインポートされませんでした。</string>
+    <string name="import_project_folder_error">選択したプロジェクトのフォルダが正しくインポートされませんでした。</string>
+    <string name="import_overwrite_title">インポートに関する警告</string>
+    <string name="import_overwrite_folder">このプロジェクトフォルダーはすでに存在しています。インポートを続行するとデータは上書きされます。よろしいですか？</string>
+    <string name="import_overwrite_dataset_single">このデータセットはすでに存在しています。インポートを続行するとデータは上書きされます。よろしいですか？</string>
+    <string name="import_overwrite_dataset_multiple">１つ以上のデータセットがすでに存在しています。インポートを続行するとデータは上書きされます。よろしいですか？</string>
+    <string name="import_overwrite_confirm">インポートと上書き</string>
+    <string name="import_overwrite_cancel">キャンセル</string>
+    <string name="export_error">出力エラー</string>
+    <string name="export_to_folder_error">選択したプロジェクトフォルダが正しく出力されませんでした。</string>
+    <string name="delete_confirm_title">削除の確認</string>
+    <string name="delete_confirm_dataset">データセットは完全に削除されます、削除しますか？</string>
+    <string name="delete_confirm_folder">プロジェクトフォルダは完全に削除されます、削除しますか？</string>
+    <string name="delete_confirm">削除</string>
+    <string name="delete_cancel">キャンセル</string>
+    <string name="storage_information_title">ストレージの情報</string>
+    <string name="storage_information_message">QField 1.xの既存のユーザーで、プロジェクトやデータセットが消えてしまったことに疑問を感じている方も、QFieldを初めて使う方も、ストレージ操作のドキュメントを少し読んでみることをお勧めします。このドキュメントへのショートカットは、タイトルバーのアクションメニューからアクセスできるようになっています。</string>
+    <string name="storage_information_view">ドキュメントを見る</string>
+    <string name="storage_information_dismiss">あとで見る</string>
+    <string name="import_project_wait">QFieldがプロジェクトをインポートしている間、しばらくお待ちください。</string>
+    <string name="import_dataset_wait">QFieldがデータセットをインポートしている間、しばらくお待ちください。</string>
+    <string name="update_project_wait">QFieldがローカルプロジェクトを更新しています。しばらくお待ちください。</string>
+    <string name="upload_pending_attachments">現在、QFieldCloudに添付ファイルをアップロードしています。</string>
+    <string name="operation_unsupported">サポートされていない操作です</string>
+    <string name="import_operation_unsupported">お使いのデバイスはこのインポート操作に対応していません。</string>
+    <string name="export_operation_unsupported">お使いのデバイスはこのエクスポート操作に対応していません。</string>
+    <string name="processing_message">処理中です...</string>
+    <string name="positioning_title">測位</string>
+    <string name="positioning_running">測位サービス実行中</string>
+    <string name="copy_to_clipboard">クリップボードにコピーする</string>
+</resources>

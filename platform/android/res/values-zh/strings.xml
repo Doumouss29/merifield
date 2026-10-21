@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">所有文件访问权限</string>
+    <string name="grant_all_files_permission"><![CDATA[QField需要所有文件访问权限才能打开本地工程和数据集，并支持自定义投影网格化、字体和底图。这虽然不是必需的，<i> 但强烈建议允许访问</i>。<br/><br/>在下一界面上，请选择 <b>QField</b> 并选择 <b>允许访问所有文件</b> 选项。]]></string>
+    <string name="grant">允许</string>
+    <string name="deny_always">始终拒绝</string>
+    <string name="deny_once">仅拒绝一次 </string>
+    <string name="import_error">导入错误</string>
+    <string name="import_dataset_error">无法正确导入所选数据集。</string>
+    <string name="import_project_archive_error">所选工程存档未正确导入。</string>
+    <string name="import_project_folder_error">所选工程文件夹未正确导入。</string>
+    <string name="import_overwrite_title">导入警告</string>
+    <string name="import_overwrite_folder">此工程文件夹已存在。该操作将替换其数据，是否继续导入？</string>
+    <string name="import_overwrite_dataset_single">此数据集已存在。该操作将其替换，是否继续导入？</string>
+    <string name="import_overwrite_dataset_multiple">一个或多个数据集已存在。该操作将其替换，是否继续导入？</string>
+    <string name="import_overwrite_confirm">导入和替换</string>
+    <string name="import_overwrite_cancel">取消</string>
+    <string name="export_error">导出错误</string>
+    <string name="export_to_folder_error">所选工程文件夹未正确导出。</string>
+    <string name="delete_confirm_title">确认移除</string>
+    <string name="delete_confirm_dataset">数据集将被永久删除，是否继续删除？</string>
+    <string name="delete_confirm_folder">工程文件夹将被永久删除，是否继续删除？</string>
+    <string name="delete_confirm">移除</string>
+    <string name="delete_cancel">取消</string>
+    <string name="storage_information_title">存储信息</string>
+    <string name="storage_information_message">无论您是原来使用过 QField 1.x 的用户，想了解为什么您的工程和数据集丢失了，还是刚接触QField，我们都建议您花一点时间阅读存储处理文档。此文档的快捷方式仍可在标题栏的操作菜单中访问。</string>
+    <string name="storage_information_view">查看文档</string>
+    <string name="storage_information_dismiss">稍后阅读</string>
+    <string name="import_project_wait">QField正在导入工程，请稍候</string>
+    <string name="import_dataset_wait">QField正在导入数据集，请稍候</string>
+    <string name="update_project_wait">QField正在更新本地工程，请稍候</string>
+    <string name="upload_pending_attachments">目前正在将附件上传到QFieldCloud</string>
+    <string name="operation_unsupported">不支持的操作</string>
+    <string name="import_operation_unsupported">您的设备不支持此导入操作。</string>
+    <string name="export_operation_unsupported">您的设备不支持此导出操作。</string>
+    <string name="processing_message">数据处理…</string>
+    <string name="positioning_title">定位</string>
+    <string name="positioning_running">定位服务正在运行</string>
+    <string name="copy_to_clipboard">复制到剪贴板</string>
+</resources>

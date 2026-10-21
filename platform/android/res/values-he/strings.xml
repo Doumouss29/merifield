@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">הענק הרשאה</string>
+    <string name="grant_all_files_permission">הענק הרשאה לכל הקבצים</string>
+    <string name="grant">אשר</string>
+    <string name="deny_always">דחה תמיד</string>
+    <string name="deny_once">דחה פעם אחת</string>
+    <string name="import_error">שגיאה בייבוא</string>
+    <string name="import_dataset_error">שגיאה בייבוא מערך הנתונים</string>
+    <string name="import_project_archive_error">שגיאה בייבוא ארכיון הפרויקט</string>
+    <string name="import_project_folder_error">שגיאה בייבוא תיקיית הפרויקט</string>
+    <string name="import_overwrite_title">שכתוב ייבוא</string>
+    <string name="import_overwrite_folder">האם לשכתב את התיקייה הקיימת?</string>
+    <string name="import_overwrite_dataset_single">מערך נתונים זה כבר קיים. האם לשכתב אותו?</string>
+    <string name="import_overwrite_dataset_multiple">חלק ממערכי הנתונים כבר קיימים. האם לשכתב אותם?</string>
+    <string name="import_overwrite_confirm">שכתב</string>
+    <string name="import_overwrite_cancel">בטל</string>
+    <string name="export_error">שגיאה ביצוא</string>
+    <string name="export_to_folder_error">שגיאה ביצוא לתיקייה</string>
+    <string name="delete_confirm_title">אישור מחיקה</string>
+    <string name="delete_confirm_dataset">האם למחוק את מערך הנתונים?</string>
+    <string name="delete_confirm_folder">האם למחוק את התיקייה?</string>
+    <string name="delete_confirm">מחק</string>
+    <string name="delete_cancel">בטל</string>
+    <string name="storage_information_title">מידע על אחסון</string>
+    <string name="storage_information_message">פרטים על האחסון במכשיר</string>
+    <string name="storage_information_view">הצג</string>
+    <string name="storage_information_dismiss">סגור</string>
+    <string name="import_project_wait">מייבא את הפרויקט...</string>
+    <string name="import_dataset_wait">מייבא את מערך הנתונים...</string>
+    <string name="update_project_wait">מעדכן את הפרויקט...</string>
+    <string name="upload_pending_attachments">מעלה קבצים מצורפים בהמתנה...</string>
+    <string name="operation_unsupported">הפעולה אינה נתמכת</string>
+    <string name="import_operation_unsupported">ייבוא זה אינו נתמך</string>
+    <string name="export_operation_unsupported">ייצוא זה אינו נתמך</string>
+    <string name="processing_message">מעבד...</string>
+    <string name="positioning_title">איתור מיקום</string>
+    <string name="positioning_running">איתור מיקום פעיל</string>
+    <string name="copy_to_clipboard">העתק ללוח</string>
+</resources>

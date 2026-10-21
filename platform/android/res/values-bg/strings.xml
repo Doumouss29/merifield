@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">Достъп до всички файлове</string>
+    <string name="grant_all_files_permission"><![CDATA[QField се нуждае от права за достъп до всички файлове за да може да отваря проекти и файлове, както и да зарежда проекционни мрежи, шрифтове и картни основи. Макар и не задължително, <i>позволяването на достъпа е силно препоръчително</i>.<br/><br/>На следващия екран, моля избере <b>QField</b>, а след това опцията <b>Позволи достъп до всички файлове</b>.]]></string>
+    <string name="grant">Позволи</string>
+    <string name="deny_always">Откажи завинаги</string>
+    <string name="deny_once">Откажи еднократно</string>
+    <string name="import_error">Грешка при импортиране</string>
+    <string name="import_dataset_error">Избраният файл/файлове не бяха импортини правилно.</string>
+    <string name="import_project_archive_error">Избраната архивирана директория не беше импортирана правилно.</string>
+    <string name="import_project_folder_error">Избраната директория не беше импортирана правилно.</string>
+    <string name="import_overwrite_title">Предупреждение при импортиране</string>
+    <string name="import_overwrite_folder">Директорията на проекта вече съществува. Тази операция ще я презапише. Искаш ли да продължиш?</string>
+    <string name="import_overwrite_dataset_single">Файлът вече съществува. Тази операция ще го презапише. Искаш ли да продължиш?</string>
+    <string name="import_overwrite_dataset_multiple">Един или повече от файловете вече съществуват. Тази операция ще ги презапише. Искаш ли да продължиш?</string>
+    <string name="import_overwrite_confirm">Импортирай и презапиши</string>
+    <string name="import_overwrite_cancel">Откажи</string>
+    <string name="export_error">Грешка при експортиране</string>
+    <string name="export_to_folder_error">Избраната директория не беше експортирана правилно.</string>
+    <string name="delete_confirm_title">Потвърди изтриването</string>
+    <string name="delete_confirm_dataset">Данните ще бъдат изтрити завинаги. Искаш ли да продължиш с изтриването?</string>
+    <string name="delete_confirm_folder">Директорията ще бъде изтрита завинаги. Искаш ли да продължиш с изтриването?</string>
+    <string name="delete_confirm">Премахни</string>
+    <string name="delete_cancel">Откажи</string>
+    <string name="storage_information_title">Съхранение на данни</string>
+    <string name="storage_information_message">Ако си използвал QFIeld 1.x и се чудиш защо твоите проекти и данни са изчезнали, отдели малко време и да прочетеш документацията относно управление на паметта. Бърза връзка към документацията е налична в менюто на заглавната лента. </string>
+    <string name="storage_information_view">Покажи ми документацията</string>
+    <string name="storage_information_dismiss">Ще прочета по-късно</string>
+    <string name="import_project_wait">Моля, изчакай докато QField импортира проекта</string>
+    <string name="import_dataset_wait">Моля, изчакай докато QField импортира данните</string>
+    <string name="update_project_wait">Моля, изчакай докато QField обнови проекта</string>
+    <string name="upload_pending_attachments">Качване на прикачени файлове към QFieldCloud</string>
+    <string name="operation_unsupported">Неподдържана операция</string>
+    <string name="import_operation_unsupported">Твоето устройство не поддържа тази импортираща операция.</string>
+    <string name="export_operation_unsupported">Твоето устройство не поддържа тази експортираща операция.</string>
+    <string name="processing_message">Обработка…</string>
+    <string name="positioning_title">Позициониране</string>
+    <string name="positioning_running">Позициониране в ход</string>
+    <string name="copy_to_clipboard">Копирай в крипборд</string>
+</resources>

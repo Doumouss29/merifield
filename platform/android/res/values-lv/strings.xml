@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="grant_permission">Piekļuve visām datnēm</string>
+    <string name="grant">Atļaut</string>
+    <string name="deny_always">Aizliegt neatgriezeniski</string>
+    <string name="deny_once">Liegt vienreiz</string>
+    <string name="import_error">Importēšanas kļūda</string>
+    <string name="import_dataset_error">Atlasīto datu kopu(as) nevarēja pareizi importēt.</string>
+    <string name="import_project_archive_error">Atlasītais projekta arhīvs netika pareizi importēts.</string>
+    <string name="import_project_folder_error">Atlasītā projekta mape netika pareizi importēta.</string>
+    <string name="import_overwrite_title">Brīdinājums par importēšanu</string>
+    <string name="import_overwrite_folder">Šī projekta mape jau pastāv. Šī operācija pārrakstīs tās datus, vai turpināt importēšanu?</string>
+    <string name="import_overwrite_dataset_single">Šī datu kopa jau pastāv. Šī operācija pārrakstīs to, vai turpināt importēšanu?</string>
+    <string name="import_overwrite_dataset_multiple">Viena vai vairākas datu kopas jau pastāv. Šī operācija pārrakstīs tās, vai turpināt importēšanu?</string>
+    <string name="import_overwrite_confirm">Importēt un pārrakstīt</string>
+    <string name="import_overwrite_cancel">Atcelt</string>
+    <string name="export_error">Eksportēšanas kļūda</string>
+    <string name="export_to_folder_error">Atlasītā projekta mape netika pareizi eksportēta.</string>
+    <string name="delete_confirm_title">Noņemšanas apstiprinājums</string>
+    <string name="delete_confirm_dataset">Datu kopa tiks neatgriezeniski izdzēsta, vai turpināt noņemšanu?</string>
+    <string name="delete_confirm_folder">Projekta mape tiks neatgriezeniski izdzēsta, vai turpināt noņemšanu?</string>
+    <string name="delete_confirm">Noņemt</string>
+    <string name="delete_cancel">Atcelt</string>
+    <string name="storage_information_title">Informācija par krātuvi</string>
+    <string name="storage_information_view">Rādīt dokumentāciju</string>
+    <string name="storage_information_dismiss">Izlasīšu vēlāk</string>
+    <string name="import_project_wait">Lūdzu, uzgaidiet, kamēr QField importē projektu</string>
+    <string name="import_dataset_wait">Lūdzu, uzgaidiet, kamēr QField importē datu kopu(as)</string>
+    <string name="update_project_wait">Lūdzu, uzgaidiet, kamēr QField atjaunina lokālo projektu</string>
+    <string name="upload_pending_attachments">Pašlaik augšupielādē pielikumus QFieldCloud</string>
+    <string name="operation_unsupported">Darbība netiek atbalstīta</string>
+    <string name="import_operation_unsupported">Jūsu ierīce neatbalsta šo importēšanas darbību.</string>
+    <string name="export_operation_unsupported">Jūsu ierīce neatbalsta šo eksportēšanas darbību.</string>
+    <string name="processing_message">Notiek apstrāde…</string>
+    </resources>
