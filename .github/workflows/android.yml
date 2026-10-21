@@ -1,13 +1,14 @@
 name: Mérifield Android preview
 'on':
   push:
-    branches: [main]
+    branches:
+    - main
   workflow_dispatch: {}
 permissions:
   contents: read
 concurrency:
   group: merifield-android-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -26,6 +27,19 @@ jobs:
         submodules: recursive
     - name: Validate Mérifield integration
       run: python3 scripts/merifield/verify.py
+    - name: Prepare persistent binary cache directories
+      run: mkdir -p /home/runner/.cache/merifield-vcpkg /home/runner/.cache/merifield-ccache
+    - name: Restore compiled dependencies and compiler cache
+      id: deps-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: |-
+          /home/runner/.cache/merifield-vcpkg
+          /home/runner/.cache/merifield-ccache
+        key: merifield-deps-v1-${{ runner.os }}-${{ matrix.triplet }}-ndk29-${{ hashFiles('CMakeLists.txt', 'vcpkg.json',
+          'vcpkg/**', 'cmake/VcpkgToolchain.cmake') }}-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: merifield-deps-v1-${{ runner.os }}-${{ matrix.triplet }}-ndk29-${{ hashFiles('CMakeLists.txt', 'vcpkg.json',
+          'vcpkg/**', 'cmake/VcpkgToolchain.cmake') }}-
     - name: ♻️ Check disk space
       run: df . -h
     - name: 🧹 Reclaim disk space
@@ -64,7 +78,7 @@ jobs:
     - name: 🔨 Prepare build env
       run: |
         sudo apt-get update
-        sudo apt-get install -y gperf autopoint '^libxcb.*-dev' libxrandr-dev libx11-xcb-dev libsm-dev libegl1-mesa-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev autoconf-archive libgstreamer-gl1.0-0 libgstreamer-plugins-base1.0-0 libfuse2 libcups2-dev nasm libltdl-dev
+        sudo apt-get install -y ccache gperf autopoint '^libxcb.*-dev' libxrandr-dev libx11-xcb-dev libsm-dev libegl1-mesa-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev autoconf-archive libgstreamer-gl1.0-0 libgstreamer-plugins-base1.0-0 libfuse2 libcups2-dev nasm libltdl-dev
         wget https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.sh -O /tmp/cmakeinstall.sh
         chmod +x /tmp/cmakeinstall.sh
         sudo /tmp/cmakeinstall.sh --prefix=/usr/local --exclude-subdir
@@ -77,8 +91,29 @@ jobs:
     - name: 🌱 Install dependencies and generate project files
       env:
         WORKSPACE: ${{ github.workspace }}
-      run: |2-
-
+      run: |-
+        set -euo pipefail
+        # Qt sub-builds log to files; expose their newest output while CMake is busy.
+        (
+          while true; do
+            sleep 60
+            echo "::group::Dependency build activity $(date -u +%FT%TZ)"
+            df -h /home/runner
+            free -h
+            python3 - <<'MONITOR'
+        import glob, os
+        logs = glob.glob(os.environ['CMAKE_BUILD_DIR'] + '/_deps/vcpkg-src/buildtrees/**/*.log', recursive=True)
+        for path in sorted(logs, key=os.path.getmtime, reverse=True)[:2]:
+            print(path, 'last modified', int(__import__('time').time() - os.path.getmtime(path)), 'seconds ago')
+            with open(path, 'rb') as log:
+                log.seek(max(0, os.path.getsize(path) - 2000))
+                print(log.read().decode('utf-8', errors='replace'))
+        MONITOR
+            echo "::endgroup::"
+          done
+        ) &
+        monitor_pid=$!
+        trap 'kill "$monitor_pid" 2>/dev/null || true' EXIT
         cmake -S "${{ github.workspace }}" \
               -B "${CMAKE_BUILD_DIR}" \
               -G Ninja \
@@ -90,6 +125,7 @@ jobs:
               -D VCPKG_INSTALL_OPTIONS="--allow-unsupported" \
               -D WITH_ALL_FILES_ACCESS="${{ matrix.all_files_access }}" \
               -D WITH_SPIX=OFF \
+              -D WITH_CCACHE=ON \
               -D APP_VERSION="0.1.0" \
               -D APK_VERSION_CODE="${{ github.run_number }}" \
               -D APP_VERSION_STR="0.1.0-preview" \
@@ -102,7 +138,7 @@ jobs:
               -D SENTRY_DSN="" \
               -D SENTRY_ENV="merifield-preview" \
               -D SENTRY_IMPORT_PREFIX=/tmp/sentry-android-ndk/jni \
-              -D VCPKG_INSTALL_OPTIONS="--x-abi-tools-use-exact-versions"
+              -D VCPKG_INSTALL_OPTIONS="--allow-unsupported;--x-abi-tools-use-exact-versions"
     - name: 📑 Upload Dep Build Logs
       uses: actions/upload-artifact@v7
       if: failure()
@@ -122,3 +158,22 @@ jobs:
         path: ${{ env.CMAKE_BUILD_DIR }}/src/app/android-build/build/outputs/apk/debug/*.apk
         if-no-files-found: error
         retention-days: 14
+    - name: Compiler cache statistics
+      if: always()
+      run: |-
+        if command -v ccache >/dev/null; then ccache --show-stats; fi
+        du -sh /home/runner/.cache/merifield-vcpkg /home/runner/.cache/merifield-ccache
+    - name: Save completed dependencies for subsequent builds
+      if: ${{ always() && !cancelled() && steps.deps-cache.outcome == 'success' }}
+      uses: actions/cache/save@v4
+      with:
+        path: |-
+          /home/runner/.cache/merifield-vcpkg
+          /home/runner/.cache/merifield-ccache
+        key: ${{ steps.deps-cache.outputs.cache-primary-key }}
+env:
+  VCPKG_BINARY_SOURCES: clear;files,/home/runner/.cache/merifield-vcpkg,readwrite
+  CCACHE_DIR: /home/runner/.cache/merifield-ccache
+  CCACHE_MAXSIZE: 512M
+  CCACHE_BASEDIR: ${{ github.workspace }}
+
