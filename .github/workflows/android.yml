@@ -1,5 +1,7 @@
 name: Mérifield Android preview
 'on':
+  push:
+    branches: [main]
   workflow_dispatch: {}
 permissions:
   contents: read
