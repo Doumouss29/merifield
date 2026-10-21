@@ -54,7 +54,7 @@ jobs:
     - name: Install Android SDK components
       run: |-
         yes | "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-        "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" "ndk;${ANDROID_NDK_VERSION}" "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platforms;android-35"
+        "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" "ndk;${ANDROID_NDK_VERSION}" "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platforms;android-36"
     - name: 🐩 Install CMake and Ninja
       uses: lukka/get-cmake@latest
       with:
