@@ -28,7 +28,7 @@ jobs:
           git fetch --depth 1 upstream f597347f84e4d5549bd4b33629d2888bf631a8b3
           git read-tree --reset -u FETCH_HEAD
           # Upstream publishing workflows must not be imported into this repository.
-          git rm -r --ignore-unmatch .github/workflows
+          git rm -rf --ignore-unmatch .github/workflows
           cp -a "$overlay_dir"/. .
           git add -A
           git config user.name "github-actions[bot]"
