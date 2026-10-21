@@ -1,0 +1,43 @@
+name: Initialize QField source snapshot
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/bootstrap.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Import pinned QField and apply Mérifield overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f src/core/qfield.h.in; then
+            echo "QField source already imported; no changes needed."
+            exit 0
+          fi
+          overlay_dir=$(mktemp -d)
+          git archive HEAD | tar -x -C "$overlay_dir"
+          git remote add upstream https://github.com/opengisch/QField.git
+          git fetch --depth 1 upstream f597347f84e4d5549bd4b33629d2888bf631a8b3
+          git read-tree --reset -u FETCH_HEAD
+          # Upstream publishing workflows must not be imported into this repository.
+          git rm -r --ignore-unmatch .github/workflows
+          cp -a "$overlay_dir"/. .
+          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Import pinned QField sources and apply Mérifield customization"
+          git push origin HEAD:main
+      - name: Start source checks and Android compilation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run merifield-checks.yml --ref main
+          gh workflow run android.yml --ref main

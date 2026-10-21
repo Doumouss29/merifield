@@ -1,0 +1,122 @@
+name: Mérifield Android preview
+'on':
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: merifield-android-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      matrix:
+        include:
+        - triplet: arm64-android
+          qt_arch: android_arm64_v8a
+          all_files_access: 'OFF'
+          artifact_name: android-arm64
+    steps:
+    - name: 🐣 Checkout
+      uses: actions/checkout@v7.0.1
+      with:
+        submodules: recursive
+    - name: Validate Mérifield integration
+      run: python3 scripts/merifield/verify.py
+    - name: ♻️ Check disk space
+      run: df . -h
+    - name: 🧹 Reclaim disk space
+      run: |
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+    - name: ♻️ Check disk space
+      run: df . -h
+    - name: 🌾 Prepare variables
+      id: vars
+      shell: bash
+      run: |-
+        NDK_VERSION=29.0.14206865
+        echo "JAVA_HOME=${JAVA_HOME_17_X64}" >> $GITHUB_ENV
+        echo "ANDROID_BUILD_TOOLS_VERSION=35.0.1" >> $GITHUB_ENV
+        echo "ANDROID_NDK_VERSION=${NDK_VERSION}" >> $GITHUB_ENV
+        echo "ANDROID_NDK=/usr/local/lib/android/sdk/ndk/${NDK_VERSION}" >> $GITHUB_ENV
+        echo "ANDROID_NDK_HOME=/usr/local/lib/android/sdk/ndk/${NDK_VERSION}" >> $GITHUB_ENV
+        echo "ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/${NDK_VERSION}" >> $GITHUB_ENV
+        echo "ndk.dir=/usr/local/lib/android/sdk/ndk/${NDK_VERSION}" >> local.properties
+
+        BUILD_ROOT="/home/runner"
+        echo "BUILD_ROOT=${BUILD_ROOT}" >> $GITHUB_ENV
+        echo "BUILD_TYPE=Release" >> $GITHUB_ENV
+        echo "CMAKE_BUILD_DIR=${BUILD_ROOT}/builddir" >> $GITHUB_ENV
+    - name: Install Android SDK components
+      run: |-
+        yes | "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+        "${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager" "ndk;${ANDROID_NDK_VERSION}" "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platforms;android-35"
+    - name: 🐩 Install CMake and Ninja
+      uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: 3.29.0
+    - name: 🔨 Prepare build env
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gperf autopoint '^libxcb.*-dev' libxrandr-dev libx11-xcb-dev libsm-dev libegl1-mesa-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev autoconf-archive libgstreamer-gl1.0-0 libgstreamer-plugins-base1.0-0 libfuse2 libcups2-dev nasm libltdl-dev
+        wget https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.sh -O /tmp/cmakeinstall.sh
+        chmod +x /tmp/cmakeinstall.sh
+        sudo /tmp/cmakeinstall.sh --prefix=/usr/local --exclude-subdir
+        rm /tmp/cmakeinstall.sh
+    - name: 📐 Download sentry libs
+      run: |
+        mkdir /tmp/sentry-android-ndk
+        wget https://repo1.maven.org/maven2/io/sentry/sentry-android-ndk/7.22.6/sentry-android-ndk-7.22.6.aar -O /tmp/sentry.zip
+        unzip /tmp/sentry.zip -d /tmp/sentry-android-ndk
+    - name: 🌱 Install dependencies and generate project files
+      env:
+        WORKSPACE: ${{ github.workspace }}
+      run: |2-
+
+        cmake -S "${{ github.workspace }}" \
+              -B "${CMAKE_BUILD_DIR}" \
+              -G Ninja \
+              -D CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+              -D ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT} \
+              -D ANDROID_NDK_VERSION="${ANDROID_NDK_VERSION}" \
+              -D ANDROID_BUILD_TOOLS_VERSION="${ANDROID_BUILD_TOOLS_VERSION}" \
+              -D VCPKG_TARGET_TRIPLET="${{ matrix.triplet }}" \
+              -D VCPKG_INSTALL_OPTIONS="--allow-unsupported" \
+              -D WITH_ALL_FILES_ACCESS="${{ matrix.all_files_access }}" \
+              -D WITH_SPIX=OFF \
+              -D APP_VERSION="0.1.0" \
+              -D APK_VERSION_CODE="${{ github.run_number }}" \
+              -D APP_VERSION_STR="0.1.0-preview" \
+                        -D APP_THEME_PATH="${{ github.workspace }}/branding/merifield/theme.json" \
+                        -D APP_ICON_PATH="${{ github.workspace }}/branding/merifield" \
+                        -D NUGET_TOKEN="" \
+              -D APP_PACKAGE_NAME="merifield" \
+              -D APP_ICON="merifield_logo" \
+              -D APP_NAME="Mérifield" \
+              -D SENTRY_DSN="" \
+              -D SENTRY_ENV="merifield-preview" \
+              -D SENTRY_IMPORT_PREFIX=/tmp/sentry-android-ndk/jni \
+              -D VCPKG_INSTALL_OPTIONS="--x-abi-tools-use-exact-versions"
+    - name: 📑 Upload Dep Build Logs
+      uses: actions/upload-artifact@v7
+      if: failure()
+      with:
+        name: build-logs-${{ matrix.triplet }}
+        path: |
+          ${{ env.CMAKE_BUILD_DIR }}/**/*.log
+    - name: 🌋 Build
+      run: |
+        cmake --build "${{ env.CMAKE_BUILD_DIR }}" --config ${{ env.BUILD_TYPE }}
+    - name: Package installable preview APK (debug signature)
+      run: cmake --build "${CMAKE_BUILD_DIR}" --target bundle --config Release
+    - name: Upload preview APK
+      uses: actions/upload-artifact@v7
+      with:
+        name: merifield-android-arm64-preview
+        path: ${{ env.CMAKE_BUILD_DIR }}/src/app/android-build/build/outputs/apk/debug/*.apk
+        if-no-files-found: error
+        retention-days: 14
