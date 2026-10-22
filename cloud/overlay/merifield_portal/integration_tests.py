@@ -51,3 +51,14 @@ class EngineIntegrationTests(TransactionTestCase):
         call_command('merifield_seed', verbosity=0)
         self.assertEqual(12345, Plan.objects.get(code='merifield_equipe').storage_mb)
         self.assertEqual(12000, Offer.objects.get(code='merifield_equipe').monthly_price)
+
+    def test_verified_invitation_and_real_member_quota(self):
+        from allauth.account.models import EmailAddress
+        from merifield_portal.models import WorkspaceInvitation
+        from merifield_portal.services import accept_invitation, invitation_token
+        EmailAddress.objects.create(user=self.bob, email=self.bob.email, verified=True, primary=True)
+        invitation = WorkspaceInvitation.objects.create(owner=self.org, created_by=self.alice, email=self.bob.email)
+        accept_invitation(self.bob, invitation_token(invitation))
+        self.assertEqual(self.org.pk, self.adapter.account(self.bob, self.org.username).pk)
+        with self.assertRaises(ValidationError):
+            self.adapter.add_member(self.alice, self.org, self.admin, 'member')

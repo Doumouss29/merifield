@@ -127,9 +127,13 @@ class QfcEngine:
             org = Organization.objects.select_for_update().get(pk=account.pk)
             if org.organization_owner_id == member.pk:
                 return None
-            record, created = OrganizationMember.objects.get_or_create(
-                organization=org, member=member,
-                defaults={'role': role, 'created_by': actor, 'updated_by': actor})
+            from qfieldcloud.subscription.exceptions import ReachedMaxOrganizationMembersError
+            try:
+                record, created = OrganizationMember.objects.get_or_create(
+                    organization=org, member=member,
+                    defaults={'role': role, 'created_by': actor, 'updated_by': actor})
+            except ReachedMaxOrganizationMembersError:
+                raise ValidationError('Le nombre de membres autorisé par cette offre est atteint. Demander une extension à l’administrateur.')
             # An old invitation must never upgrade an existing member's role.
             return record
 
@@ -147,7 +151,9 @@ class QfcEngine:
         from django.db import transaction
         if not actor.is_superuser:
             raise PermissionDenied
-        plan = Plan.objects.get(code=offer.engine_plan_code)
+        plan = Plan.objects.filter(code=offer.engine_plan_code).first()
+        if plan is None:
+            raise ValidationError('Le plan technique de cette offre est introuvable.')
         if plan.user_type != account.type:
             raise ValidationError('Cette offre ne correspond pas au type de compte.')
         if not plan.is_seat_based and seats != 1:
