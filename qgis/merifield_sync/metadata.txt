@@ -1,0 +1,17 @@
+[general]
+name=Mérifield Sync
+qgisMinimumVersion=3.34
+qgisMaximumVersion=3.99
+version=0.1.0
+author=Mérifield — Moussa DOUMBIA
+email=
+description=Préparer les projets Mérifield, configurer les signatures et accéder à la synchronisation QFieldSync.
+about=Configuration de plusieurs signatures, diagnostic du projet, ZIP terrain et publication via QFieldSync. QFieldSync doit être installé et activé pour le paquetage et le cloud.
+category=Vector
+icon=icon.svg
+experimental=True
+hasProcessingProvider=False
+homepage=https://github.com/Doumouss29/merifield
+repository=https://github.com/Doumouss29/merifield
+tracker=https://github.com/Doumouss29/merifield/issues
+tags=terrain,signature,QField,QFieldCloud,Mérifield,synchronisation

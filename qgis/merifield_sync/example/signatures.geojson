@@ -1,0 +1,24 @@
+{
+  "type": "FeatureCollection",
+  "name": "signatures",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "reference": "TEST-001",
+        "nom_demandeur": "Demandeur de test",
+        "signature_demandeur": "",
+        "nom_temoin": "Témoin de test",
+        "signature_temoin": "",
+        "observations": "Données fictives — test de signature"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -4.025,
+          5.345
+        ]
+      }
+    }
+  ]
+}

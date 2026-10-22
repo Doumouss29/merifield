@@ -1,0 +1,33 @@
+name: Mérifield Sync QGIS
+on:
+  push:
+    branches: [feature/qgis-extension]
+    paths: ['qgis/**', '.github/workflows/qgis-extension.yml']
+  pull_request:
+    paths: ['qgis/**', '.github/workflows/qgis-extension.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-and-package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install QGIS Python runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends python3-qgis
+      - name: Test ZIP and data preservation
+        run: /usr/bin/python3 -m unittest discover -s qgis/tests -p test_archive.py -v
+      - name: Test with QGIS
+        run: /usr/bin/python3 qgis/tests/test_qgis.py
+      - name: Package QGIS extension
+        run: /usr/bin/python3 qgis/package_plugin.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: merifield-sync-qgis-0.1.0
+          path: qgis/Merifield_Sync_QGIS_0.1.0.zip
+          if-no-files-found: error
