@@ -15,6 +15,12 @@ Popup {
   signal finished(var path)
   signal cancelled
 
+  property bool signatureMode: false
+  onClosed: {
+    cancelled(); // Also release the owning field on Android Back/Escape.
+    signatureMode = false;
+  }
+
   width: mainWindow.width
   height: mainWindow.height
   x: 0
@@ -83,7 +89,7 @@ Popup {
       onActiveChanged: {
         if (active) {
           if (centroid.pressedButtons !== Qt.RightButton) {
-            drawingCanvas.strokeBegin(centroid.position, settings.strokeColor);
+            drawingCanvas.strokeBegin(centroid.position, signatureMode ? "#14213d" : settings.strokeColor);
           } else {
             oldPosition = centroid.position;
           }
@@ -116,7 +122,7 @@ Popup {
 
       onActiveChanged: {
         if (active) {
-          drawingCanvas.strokeBegin(centroid.position, settings.strokeColor);
+          drawingCanvas.strokeBegin(centroid.position, signatureMode ? "#14213d" : settings.strokeColor);
         } else {
           drawingCanvas.strokeEnd(centroid.position);
         }
@@ -131,7 +137,7 @@ Popup {
 
     PinchHandler {
       id: pinchHandler
-      enabled: sketcher.visible && !drawingCanvas.isEmpty
+      enabled: sketcher.visible && !drawingCanvas.isEmpty && !signatureMode
       acceptedButtons: Qt.NoButton | Qt.LeftButton
       acceptedDevices: PointerDevice.TouchScreen
       dragThreshold: 2
@@ -163,7 +169,7 @@ Popup {
     }
 
     RowLayout {
-      visible: !drawingCanvas.isEmpty
+      visible: !drawingCanvas.isEmpty && !signatureMode
       anchors.horizontalCenter: parent.horizontalCenter
       anchors.bottom: parent.bottom
       anchors.bottomMargin: mainWindow.sceneBottomMargin + 5
@@ -295,6 +301,28 @@ Popup {
       }
     }
 
+    Button {
+      visible: signatureMode
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.bottom: parent.bottom
+      anchors.bottomMargin: mainWindow.sceneBottomMargin + 12
+      text: qsTr("Effacer la signature")
+      onClicked: drawingCanvas.createBlankCanvas(Math.max(320, Math.round(mainWindow.width)),
+                                                Math.max(320, Math.round(mainWindow.height)), "#ffffff")
+    }
+
+    Label {
+      visible: signatureMode
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.top: parent.top
+      anchors.topMargin: mainWindow.sceneTopMargin + 65
+      width: parent.width - 40
+      horizontalAlignment: Text.AlignHCenter
+      wrapMode: Text.WordWrap
+      text: qsTr("Signez au doigt, puis validez avec la coche")
+      color: "#14213d"
+    }
+
     QfToolButton {
       id: backButton
 
@@ -336,6 +364,7 @@ Popup {
     QfToolButton {
       id: saveButton
       visible: !drawingCanvas.isEmpty
+      enabled: !signatureMode || drawingCanvas.isDirty
 
       anchors.right: parent.right
       anchors.rightMargin: mainWindow.sceneRightMargin + 5
@@ -348,17 +377,31 @@ Popup {
       round: true
 
       onClicked: {
-        sketcher.finished(drawingCanvas.save());
-        sketcher.close();
+        const path = drawingCanvas.save();
+        if (path && QfFileUtils.fileExists(path)) {
+          sketcher.finished(path);
+          sketcher.close();
+        } else {
+          mainWindow.displayToast(qsTr("Impossible d’enregistrer le dessin"), "error");
+        }
       }
     }
   }
 
+  function startSignature() {
+    signatureMode = true;
+    drawingCanvas.createBlankCanvas(Math.max(320, Math.round(mainWindow.width)),
+                                   Math.max(320, Math.round(mainWindow.height)), "#ffffff");
+    open();
+  }
+
   function loadImage(path) {
+    signatureMode = false;
     drawingCanvas.createCanvasFromImage(QfUrlUtils.toLocalFile(path));
   }
 
   function clear() {
+    signatureMode = false;
     drawingCanvas.clear();
   }
 }

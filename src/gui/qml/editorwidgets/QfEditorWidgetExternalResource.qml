@@ -71,7 +71,20 @@ QfEditorWidgetBase {
     DocumentVideo    // 4
   }
 
-  property int documentViewer: config.DocumentViewer
+  // Conventional field names work with ordinary QGIS Attachment widgets.
+  // Other names can be opted in using a JSON array layer custom property.
+  readonly property bool isSignature: {
+    if (field.name.toLowerCase().startsWith("signature_"))
+      return true;
+    try {
+      const fields = JSON.parse(currentLayer.customProperty("Merifield/signature_fields", "[]"));
+      return Array.isArray(fields) && fields.indexOf(field.name) !== -1;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  property int documentViewer: isSignature ? 1 : config.DocumentViewer
 
   property bool isImage: false
   property bool isAudio: false
@@ -208,6 +221,12 @@ QfEditorWidgetBase {
     onReady: bars => {
       audioWaveformRepeater.model = Array.from(bars);
     }
+  }
+
+  function captureSignature() {
+    Qt.inputMethod.hide();
+    sketcherConnection.enabled = true;
+    sketcher.startSignature();
   }
 
   function getResourceFilePath() {
@@ -481,7 +500,7 @@ QfEditorWidgetBase {
       id: sketchButton
       anchors.top: image.top
       anchors.right: image.right
-      visible: image.source !== '' && image.status === Image.Ready && isEnabled
+      visible: !isSignature && image.source !== '' && image.status === Image.Ready && isEnabled
 
       round: true
       iconSource: QfTheme.getThemeVectorIcon("ic_freehand_white_24dp")
@@ -501,8 +520,15 @@ QfEditorWidgetBase {
       enabled: false
 
       function onFinished(path) {
-        const filepath = QfStringUtils.replaceFilenameTags(getResourceFilePath(), path);
-        platformUtilities.renameFile(path, prefixToRelativePath + filepath);
+        // A new file per signing avoids overwriting a previously committed signature.
+        const filepath = isSignature
+          ? "DCIM/signature_" + Date.now() + "_" + Math.random().toString(36).slice(2) + ".png"
+          : QfStringUtils.replaceFilenameTags(getResourceFilePath(), path);
+        if (!platformUtilities.renameFile(path, prefixToRelativePath + filepath)) {
+          mainWindow.displayToast(qsTr("Impossible d’enregistrer la pièce jointe"), "error");
+          enabled = false;
+          return;
+        }
 
         // In order to insure an edited image gets refreshed in the feature form, reset the source
         image.source = '';
@@ -599,11 +625,11 @@ QfEditorWidgetBase {
     anchors.right: cameraVideoButton.left
     anchors.top: parent.top
 
-    iconSource: QfTheme.getThemeVectorIcon("ic_camera_photo_black_24dp")
+    iconSource: QfTheme.getThemeVectorIcon(isSignature ? "ic_freehand_white_24dp" : "ic_camera_photo_black_24dp")
     iconColor: QfTheme.mainTextColor
     bgcolor: "transparent"
 
-    onClicked: capturePhoto()
+    onClicked: isSignature ? captureSignature() : capturePhoto()
   }
 
   QfToolButton {
@@ -864,18 +890,19 @@ QfEditorWidgetBase {
 
     MenuItem {
       id: capturePhotoMenuItem
-      text: qsTr('Take a photo')
+      text: isSignature ? qsTr('Signer au doigt') : qsTr('Take a photo')
 
       font: QfTheme.defaultFont
       icon.source: QfTheme.getThemeVectorIcon("ic_camera_photo_black_24dp")
       height: 48
       leftPadding: QfTheme.menuItemLeftPadding
 
-      onTriggered: capturePhoto()
+      onTriggered: isSignature ? captureSignature() : capturePhoto()
     }
 
     MenuItem {
       id: captureVideoMenuItem
+      visible: !isSignature
       text: qsTr('Take a video')
 
       font: QfTheme.defaultFont
@@ -888,6 +915,7 @@ QfEditorWidgetBase {
 
     MenuItem {
       id: captureAudioMenuItem
+      visible: !isSignature
       text: qsTr('Record an audio clip')
 
       font: QfTheme.defaultFont
@@ -900,11 +928,13 @@ QfEditorWidgetBase {
 
     MenuSeparator {
       id: separatorGalleryItem
+      visible: !isSignature
       width: parent.width
     }
 
     MenuItem {
       id: attachGalleryMenuItem
+      visible: !isSignature
       text: qsTr('Attach a gallery item')
 
       font: QfTheme.defaultFont
@@ -917,6 +947,7 @@ QfEditorWidgetBase {
 
     MenuItem {
       id: attachFileMenuItem
+      visible: !isSignature
       text: qsTr('Attach a file')
 
       font: QfTheme.defaultFont
@@ -929,11 +960,13 @@ QfEditorWidgetBase {
 
     MenuSeparator {
       id: separatorDrawingItem
+      visible: !isSignature
       width: parent.width
     }
 
     MenuItem {
       id: attachDrawingMenuItem
+      visible: !isSignature
       text: qsTr('Draw a sketch')
 
       font: QfTheme.defaultFont
@@ -942,6 +975,10 @@ QfEditorWidgetBase {
       leftPadding: QfTheme.menuItemLeftPadding
 
       onTriggered: {
+        if (isSignature) {
+          captureSignature();
+          return;
+        }
         sketcherConnection.enabled = true;
         sketcher.clear();
         sketcher.open();
