@@ -1,0 +1,58 @@
+name: Mérifield Cloud platform
+on:
+  push:
+    branches: [feature/cloud-platform]
+    paths: ['cloud/**', '.github/workflows/cloud-platform.yml']
+  pull_request:
+    paths: ['cloud/**', '.github/workflows/cloud-platform.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  portal:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'Django>=5.2,<5.3' 'PyYAML>=6,<7'
+      - name: Test tenant boundaries and subscription workflow
+        run: python cloud/manage_local_tests.py test tests --verbosity 2
+      - name: Check migrations
+        run: python cloud/manage_local_tests.py makemigrations --check --dry-run
+      - name: Package deployment kit
+        run: python cloud/package.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: merifield-cloud-deployment-kit
+          path: cloud/Merifield_Cloud_Starter.zip
+  engine-integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Prepare the pinned engine with the portal
+        run: python3 cloud/deploy/bootstrap.py "$RUNNER_TEMP/merifield-engine"
+      - name: Configure disposable test services
+        run: |
+          cd "$RUNNER_TEMP/merifield-engine"
+          python3 merifield-deploy/configure_ci.py
+          docker compose config --quiet
+          docker compose up -d db memcached
+      - name: Build web application
+        run: |
+          cd "$RUNNER_TEMP/merifield-engine"
+          docker compose build app
+      - name: Run tests on the real engine and PostGIS
+        run: |
+          cd "$RUNNER_TEMP/merifield-engine"
+          docker compose run --rm app python manage.py test merifield_portal.integration_tests --verbosity 2 --noinput
+      - name: Stop disposable test services
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/merifield-engine/.env" ]; then
+            cd "$RUNNER_TEMP/merifield-engine"
+            docker compose down -v --remove-orphans
+          fi

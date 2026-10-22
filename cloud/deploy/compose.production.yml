@@ -1,0 +1,62 @@
+services:
+  app:
+    environment:
+      DJANGO_SETTINGS_MODULE: merifield_settings
+    depends_on:
+      db:
+        condition: service_healthy
+      memcached:
+        condition: service_started
+  worker_wrapper:
+    environment:
+      DJANGO_SETTINGS_MODULE: merifield_settings
+    depends_on:
+      db:
+        condition: service_healthy
+  nginx:
+    profiles: [legacy-proxy]
+  mkcert:
+    profiles: [legacy-proxy]
+  certbot:
+    profiles: [legacy-proxy]
+  qgis3:
+    profiles: [build-workers]
+  qgis4:
+    profiles: [build-workers]
+  mirror_transformation_grids:
+    profiles: [maintenance]
+  db:
+    image: postgis/postgis:${POSTGIS_IMAGE_VERSION}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  caddy:
+    image: caddy:2.10.2
+    restart: unless-stopped
+    environment:
+      MERIFIELD_HOST: ${QFIELDCLOUD_HOST}
+      ACME_EMAIL: ${LETSENCRYPT_EMAIL}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./merifield-deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - static_volume:/srv/static:ro
+      - media_volume:/srv/media:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
