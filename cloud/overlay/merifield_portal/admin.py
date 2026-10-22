@@ -48,15 +48,12 @@ class InvitationAdmin(SuperuserOnly):
         return False
 
 
-# qfc_admin_site is the engine's actual registered site. Register both for
-# standalone portal tests and for the production engine admin.
-sites = [admin.site]
-try:
-    from qfieldcloud.core.admin import qfc_admin_site
-    sites.append(qfc_admin_site)
-except ImportError:
-    pass
-for site in sites:
+def register_with(site):
     for model, model_admin in [(Offer, OfferAdmin), (PlanChangeRequest, RequestAdmin), (WorkspaceInvitation, InvitationAdmin)]:
         if not site.is_registered(model):
             site.register(model, model_admin)
+
+
+# Do not import the engine admin while Django is still discovering apps:
+# it needs rest_framework.authtoken.admin to register TokenProxy first.
+register_with(admin.site)

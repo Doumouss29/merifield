@@ -2,6 +2,8 @@ from django.contrib import admin
 from merifield_portal.urls import urlpatterns as portal_urls
 from qfieldcloud.urls import urlpatterns as engine_urls
 from qfieldcloud.core.admin import qfc_admin_site
+from merifield_portal.admin import register_with
+register_with(qfc_admin_site)
 
 for site in (admin.site, qfc_admin_site):
     site.site_header = 'Mérifield Cloud'
