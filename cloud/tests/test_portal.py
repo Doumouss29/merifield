@@ -125,3 +125,18 @@ class PortalTests(TestCase):
         self.assertEqual(200, self.client.get(reverse('portal_administration')).status_code)
         self.client.logout()
         self.assertEqual(200, self.client.get(reverse('account_login')).status_code)
+
+    def test_email_must_be_verified_before_accepting_invitation(self):
+        invitation = WorkspaceInvitation.objects.create(owner=self.org, created_by=self.alice, email=self.bob.email)
+        FakeEngine.unverified_users.add(self.bob.pk)
+        self.client.force_login(self.bob)
+        response = self.client.post(reverse('portal_accept_invite', args=[invitation_token(invitation)]))
+        self.assertEqual(403, response.status_code)
+        self.assertEqual([], FakeEngine.joined)
+
+    def test_failed_mail_send_does_not_leave_a_live_invitation(self):
+        from unittest.mock import patch
+        with patch('merifield_portal.views.send_mail', side_effect=OSError('SMTP unavailable')):
+            response = self.client.post(reverse('portal_members', args=[self.org.username]), {'email': self.bob.email, 'role': 'member'})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, WorkspaceInvitation.objects.count())

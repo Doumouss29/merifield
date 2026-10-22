@@ -113,6 +113,10 @@ class QfcEngine:
         from qfieldcloud.core.models import OrganizationMember
         return OrganizationMember.objects.filter(organization_id=account.pk).select_related('member')
 
+    def verified_email(self, user, email):
+        from allauth.account.models import EmailAddress
+        return EmailAddress.objects.filter(user=user, email__iexact=email, verified=True).exists()
+
     def add_member(self, actor, account, member, role):
         from qfieldcloud.core.models import OrganizationMember, Organization
         if not account.is_organization or not self.can_manage(actor, account):

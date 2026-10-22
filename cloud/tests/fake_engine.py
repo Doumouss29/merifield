@@ -20,6 +20,7 @@ class FakeEngine:
     activations = []
     joined = []
     disabled_managers = set()
+    unverified_users = set()
 
     @classmethod
     def reset(cls):
@@ -28,6 +29,7 @@ class FakeEngine:
         cls.activations = []
         cls.joined = []
         cls.disabled_managers = set()
+        cls.unverified_users = set()
 
     def accounts(self, user):
         user.type = 1
@@ -86,6 +88,9 @@ class FakeEngine:
 
     def members(self, user, account):
         return []
+
+    def verified_email(self, user, email):
+        return user.pk not in self.unverified_users
 
     def add_member(self, actor, account, member, role):
         if not self.can_manage(actor, account):

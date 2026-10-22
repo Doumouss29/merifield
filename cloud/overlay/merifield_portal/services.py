@@ -27,6 +27,8 @@ def accept_invitation(user, token):
     if not user.email or invitation.email.casefold() != user.email.casefold():
         raise PermissionDenied('Se connecter avec le compte correspondant à l’adresse invitée.')
     adapter = engine()
+    if not adapter.verified_email(user, invitation.email):
+        raise PermissionDenied('Confirmer l’adresse e-mail du compte avant d’accepter cette invitation.')
     account = adapter.account(invitation.created_by, invitation.owner.username)
     if not adapter.can_manage(invitation.created_by, account):
         raise PermissionDenied('L’auteur de cette invitation ne peut plus gérer cet espace.')

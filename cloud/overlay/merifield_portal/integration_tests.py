@@ -2,14 +2,14 @@
 from django.core.management import call_command
 from django.core.exceptions import ValidationError
 from django.http import Http404
-from django.test import TestCase, Client
+from django.test import TransactionTestCase, Client
 from django.urls import reverse
 from merifield_portal.engine import QfcEngine
 from merifield_portal.models import Offer, PlanChangeRequest
 from merifield_portal.services import approve_request
 
 
-class EngineIntegrationTests(TestCase):
+class EngineIntegrationTests(TransactionTestCase):
     def setUp(self):
         from qfieldcloud.core.models import Person
         call_command('merifield_seed', verbosity=0)
