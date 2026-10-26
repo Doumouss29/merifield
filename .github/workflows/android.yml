@@ -31,7 +31,7 @@ jobs:
       run: mkdir -p /home/runner/.cache/merifield-vcpkg /home/runner/.cache/merifield-ccache
     - name: Restore compiled dependencies and compiler cache
       id: deps-cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v6
       with:
         path: |-
           /home/runner/.cache/merifield-vcpkg
@@ -165,7 +165,7 @@ jobs:
         du -sh /home/runner/.cache/merifield-vcpkg /home/runner/.cache/merifield-ccache
     - name: Save completed dependencies for subsequent builds
       if: ${{ always() && !cancelled() && steps.deps-cache.outcome == 'success' }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v6
       with:
         path: |-
           /home/runner/.cache/merifield-vcpkg
